@@ -1,0 +1,5 @@
+Model,Run ID,Model URI,Accuracy,Precision (Accept),Recall / Sensitivity,Specificity,F1-Score (Accept),Precision (Reject),Recall (Reject),F1-Score (Reject),Macro F1,Weighted F1,ROC-AUC,TP,TN,FP,FN
+Decision Tree,ec1d62a7e2b74f958a13cb24b98d8f04,models:/m-e9f46b7d24904baa9e1b594da0e8e71d,0.925,0.9665,0.9484,0.7407,0.9573,0.6452,0.7407,0.6897,0.8235,0.9272,0.8778,202,20,7,11
+Random Forest,541e7c603457423bb1f5fc4362799d21,models:/m-a2a857526c8f4f61b31f73c490dafe1f,0.95,0.9631,0.9812,0.7037,0.9721,0.8261,0.7037,0.76,0.866,0.9482,0.9197,209,19,8,4
+Gradient Boosting,0bc7cbbce1ca4ca2aed359f745943271,models:/m-79167c201b6a4af9ad9f7b992ee6ee13,0.9583,0.9635,0.9906,0.7037,0.9769,0.9048,0.7037,0.7917,0.8843,0.956,0.8913,211,19,8,2
+Voting Classifier,7612724a2ebc403db8b403bb16c6cc77,models:/m-f488c1a6468d4d8c82e1ed5d382b0356,0.9542,0.9633,0.9859,0.7037,0.9745,0.8636,0.7037,0.7755,0.875,0.9521,0.9179,210,19,8,3

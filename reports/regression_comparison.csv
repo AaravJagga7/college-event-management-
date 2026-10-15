@@ -1,0 +1,5 @@
+Model,Run ID,Model URI,CV R² (Mean),CV R² (Std),Test R²,Test MAE,Test RMSE,Train R²
+Decision Tree,df1a8f1a2ee84d858ab0e9b53d9ee9e6,models:/m-2076d02ba86a461e90e4d4fd9c31af6f,0.376,0.066,0.366,17.18,22.86,0.626
+Random Forest,50e140829cfe4069a34d3408782d68f9,models:/m-23379581383e424d8de3b92d930b379e,0.511,0.022,0.505,15.0,20.19,0.794
+Gradient Boosting,21daa459324f47bdac32c06501799904,models:/m-642fe7e2a42f4c1484ac2938861006a7,0.56,0.024,0.558,13.75,19.08,0.808
+Voting Regressor,d1c35e1be9bd4dbf91b2e95f8b5579fc,models:/m-1970fa8411f74d5786c92fb45a6914bc,0.539,0.023,0.526,14.63,19.76,0.79
