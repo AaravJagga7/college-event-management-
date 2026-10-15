@@ -20,8 +20,10 @@ stages:
       - features_ready.csv
       - params.yaml
     outs:
-      - reports/regression_comparison.csv
-      - reports/classification_comparison.csv
+      - reports/regression_comparison.csv:
+          cache: false
+      - reports/classification_comparison.csv:
+          cache: false
     plots:
       - reports/model_comparison_regression.png:
           cache: false
