@@ -28,3 +28,39 @@ stages:
       hash: md5
       md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
       size: 80860
+  train_and_compare:
+    cmd: python3 train_models_mlflow.py
+    deps:
+    - path: features_ready.csv
+      hash: md5
+      md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
+      size: 80860
+    - path: params.yaml
+      hash: md5
+      md5: dbf070154ba0f926ecb009e934b66ee7
+      size: 204
+    - path: train_models_mlflow.py
+      hash: md5
+      md5: 3b3ad4b56ffc0751b9c2c7802c752952
+      size: 17440
+    outs:
+    - path: reports/champion_metrics.json
+      hash: md5
+      md5: 1495dac6ab15ae5ea7b54a0b14e6ff16
+      size: 284
+    - path: reports/classification_comparison.csv
+      hash: md5
+      md5: 6fccc69bc5a89ce54c81baa8cf351a57
+      size: 587
+    - path: reports/model_comparison_classification.png
+      hash: md5
+      md5: 313f393273c2abd03edca46c26f006d0
+      size: 63429
+    - path: reports/model_comparison_regression.png
+      hash: md5
+      md5: 642a992968a3a635163afd84bc44bb13
+      size: 76014
+    - path: reports/regression_comparison.csv
+      hash: md5
+      md5: 716a5d290bd8d35c0d729f3d8e2f3b44
+      size: 596
