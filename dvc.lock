@@ -1,0 +1,30 @@
+schema: '2.0'
+stages:
+  feature_extraction:
+    cmd: python3 eda_and_feature_extraction.py
+    deps:
+    - path: eda_and_feature_extraction.py
+      hash: md5
+      md5: 8931d029e98c6ab0ca6435bda244cdde
+      size: 10865
+    - path: params.yaml
+      hash: md5
+      md5: dbf070154ba0f926ecb009e934b66ee7
+      size: 204
+    - path: synthetic_event_data.csv
+      hash: md5
+      md5: e0589309321d427ed7154698eb949f89
+      size: 178048
+    outs:
+    - path: eda_visualization.png
+      hash: md5
+      md5: db388cd23a2ea2629cd13c68198bc66b
+      size: 199115
+    - path: feature_importance.png
+      hash: md5
+      md5: acb3739763942bbb006a8da3ea7f549b
+      size: 63197
+    - path: features_ready.csv
+      hash: md5
+      md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
+      size: 80860
