@@ -1,0 +1,14 @@
+train:
+  test_size: 0.2
+  seed: 42
+  cv_folds: 5
+
+features:
+  exam_months: [4, 5, 11, 12]
+  afternoon_threshold: 14
+  categories:
+    - academic
+    - cultural
+    - fun_club
+    - sports
+    - technical

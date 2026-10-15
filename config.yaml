@@ -1,0 +1,92 @@
+# ==============================================================================
+# College Event Management System - Feature Extraction & ML Pipeline Config
+# ==============================================================================
+
+project:
+  name: college-event-management-ml
+  version: 1.0.0
+  description: Feature extraction and dual-task predictive modeling for event attendance and room booking approval.
+
+data:
+  raw_path: synthetic_event_data.csv
+  processed_path: features_ready.csv
+  datetime_formats:
+    request_date: "%m/%d/%Y"
+    submitted_date: "%m/%d/%Y"
+    requested_time: "%I:%M%p"
+
+features:
+  temporal:
+    - month
+    - day_of_week
+    - is_saturday
+    - week_of_year
+    - is_exam_season
+    - hour
+    - is_afternoon
+    - duration_min
+    - lead_days
+
+  academic_calendar:
+    exam_months: [4, 5, 11, 12]  # April, May, November, December
+    afternoon_threshold_hour: 14   # 2:00 PM
+
+  ordinal_mappings:
+    type_level:
+      Normal: 1
+      Important: 2
+      Very important: 3
+    designation_level:
+      Assistant Professor: 1
+      Associate Professor: 2
+      Professor: 3
+
+  categories:
+    - academic
+    - cultural
+    - fun_club
+    - sports
+    - technical
+
+  spatial_and_frequency:
+    - room_no
+    - room_capacity
+    - faculty_event_count
+    - room_usage_count
+    - earlier_clash_count
+
+targets:
+  attendance:
+    name: TARGET_registers
+    type: regression
+    description: Student attendance count for the requested event
+  approval:
+    name: TARGET_accept
+    type: binary_classification
+    description: Administrative decision (1 = Accept, 0 = Reject)
+
+leakage_prevention:
+  # Strictly forbidden in TARGET_registers model
+  forbidden_for_registers:
+    - TARGET_registers
+    - TARGET_accept
+    - fill_ratio
+
+modeling:
+  train:
+    test_size: 0.20
+    seed: 42
+    cv_folds: 5
+
+  random_forest_regressor:
+    n_estimators: 100
+    random_state: 42
+    max_depth: null
+    n_jobs: -1
+
+  random_forest_classifier:
+    n_estimators: 100
+    random_state: 42
+    max_depth: null
+    class_weight: balanced
+    n_jobs: -1

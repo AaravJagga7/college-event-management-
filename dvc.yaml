@@ -1,0 +1,14 @@
+stages:
+  feature_extraction:
+    cmd: python3 eda_and_feature_extraction.py
+    deps:
+      - eda_and_feature_extraction.py
+      - synthetic_event_data.csv
+      - params.yaml
+    outs:
+      - features_ready.csv
+    plots:
+      - eda_visualization.png:
+          cache: false
+      - feature_importance.png:
+          cache: false
