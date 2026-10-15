@@ -1,0 +1,5 @@
+Model,Run ID,Model URI,Accuracy,Precision,Recall,F1-Score,ROC-AUC,CV ROC-AUC
+Decision Tree,311d9e2bb03e4629a6d388f055cb78bc,models:/m-80a1ff32cc76454ebf5c8d255d71f8fe,0.925,0.967,0.948,0.957,0.878,0.823
+Random Forest,7bd262b3c30c40cb88b16fbdce31af59,models:/m-71015e8a62f6400392ac37db5b6b3dac,0.95,0.963,0.981,0.972,0.92,0.894
+Gradient Boosting,c7ba3fa1364c436c9dd5abde8b0faf9f,models:/m-218bbdfcd0b147ec9e3e3bd93cb8fe80,0.958,0.963,0.991,0.977,0.891,0.873
+Voting Classifier,29d7ee84e3be4e5aa04f90ba89e40d7e,models:/m-f70c3361ebf74f5ca42f7e1493e29b11,0.954,0.963,0.986,0.974,0.918,0.879

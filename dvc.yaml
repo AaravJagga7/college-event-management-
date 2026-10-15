@@ -12,3 +12,21 @@ stages:
           cache: false
       - feature_importance.png:
           cache: false
+
+  train_and_compare:
+    cmd: python3 train_models_mlflow.py
+    deps:
+      - train_models_mlflow.py
+      - features_ready.csv
+      - params.yaml
+    outs:
+      - reports/regression_comparison.csv
+      - reports/classification_comparison.csv
+    plots:
+      - reports/model_comparison_regression.png:
+          cache: false
+      - reports/model_comparison_classification.png:
+          cache: false
+    metrics:
+      - reports/champion_metrics.json:
+          cache: false

@@ -1,0 +1,14 @@
+{
+  "attendance_regression": {
+    "champion_model": "Gradient Boosting",
+    "test_mae": 13.75,
+    "test_r2": 0.558,
+    "cv_r2": 0.56
+  },
+  "booking_approval": {
+    "champion_model": "Random Forest",
+    "test_roc_auc": 0.92,
+    "test_f1": 0.972,
+    "test_accuracy": 0.95
+  }
+}
