@@ -15,7 +15,10 @@ import matplotlib.pyplot as plt
 import seaborn as sns
 from sklearn.ensemble import RandomForestRegressor, RandomForestClassifier
 from sklearn.model_selection import train_test_split
-from sklearn.metrics import r2_score, mean_absolute_error, mean_squared_error, roc_auc_score, classification_report
+from sklearn.metrics import (
+    r2_score, mean_absolute_error, mean_squared_error,
+    roc_auc_score, classification_report, confusion_matrix, ConfusionMatrixDisplay
+)
 
 # ------------------------------------------------------------------------------
 # 1. LOAD RAW DATA
@@ -198,23 +201,43 @@ rf_cls.fit(X_train_c, y_train_c)
 y_pred_c = rf_cls.predict(X_test_c)
 y_prob_c = rf_cls.predict_proba(X_test_c)[:, 1]
 roc_auc = roc_auc_score(y_test_c, y_prob_c)
-print(f"Task B (Approval Classification): ROC-AUC = {roc_auc:.3f}")
 
-# Plot Feature Importances
-fig, axes = plt.subplots(1, 2, figsize=(16, 6))
+# Confusion Matrix Computation
+cm = confusion_matrix(y_test_c, y_pred_c)
+tn, fp, fn, tp = cm.ravel()
+sensitivity = tp / (tp + fn)
+specificity = tn / (tn + fp)
+accuracy = (tp + tn) / len(y_test_c)
+
+print(f"Task B (Approval Classification): ROC-AUC = {roc_auc:.3f}, Accuracy = {accuracy:.3f}")
+print(f"Confusion Matrix -> TP: {tp}, TN: {tn}, FP: {fp}, FN: {fn}")
+print(f"Sensitivity (Recall): {sensitivity:.3f} | Specificity: {specificity:.3f}")
+print("\nDetailed Classification Report:")
+print(classification_report(y_test_c, y_pred_c, target_names=["Reject (0)", "Accept (1)"]))
+
+# Plot Feature Importances + Confusion Matrix (3-panel)
+fig, axes = plt.subplots(1, 3, figsize=(20, 6))
 
 pd.Series(rf_reg.feature_importances_, index=X_reg.columns).sort_values().tail(10).plot(kind="barh", ax=axes[0], color="#2b5c8f")
-axes[0].set_title("Top 10 Drivers: Student Attendance (Registers)", fontweight="bold")
+axes[0].set_title("Top 10 Drivers: Attendance (Regression)", fontweight="bold")
 axes[0].set_xlabel("Feature Importance (Gini)")
 
 pd.Series(rf_cls.feature_importances_, index=X_cls.columns).sort_values().tail(10).plot(kind="barh", ax=axes[1], color="#e41a1c")
-axes[1].set_title("Top 10 Drivers: Booking Approval (Accept/Reject)", fontweight="bold")
+axes[1].set_title("Top 10 Drivers: Booking Approval", fontweight="bold")
 axes[1].set_xlabel("Feature Importance (Gini)")
+
+# Confusion Matrix Heatmap
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=axes[2],
+            xticklabels=["Reject (0)", "Accept (1)"], yticklabels=["Reject (0)", "Accept (1)"],
+            cbar=False, annot_kws={"size": 14, "weight": "bold"})
+axes[2].set_title(f"Baseline Confusion Matrix\n(Sensitivity: {sensitivity:.1%}, Specificity: {specificity:.1%})", fontweight="bold")
+axes[2].set_xlabel("Predicted Label")
+axes[2].set_ylabel("True Label")
 
 plt.tight_layout()
 plt.savefig("feature_importance.png", dpi=120, bbox_inches="tight")
 plt.close()
-print("Saved: feature_importance.png\n")
+print("Saved: feature_importance.png (with Confusion Matrix)\n")
 
 # ------------------------------------------------------------------------------
 # 5. SUMMARY

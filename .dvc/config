@@ -1,5 +1,11 @@
 [core]
     analytics = false
-    remote = localremote
+    remote = origin
 ['remote "localremote"']
     url = /Users/aarav/dvc_storage
+['remote "dagshub"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/AaravJagga7/college-event-management-.s3
+['remote "origin"']
+    url = s3://dvc
+    endpointurl = https://dagshub.com/AaravJagga7/college-event-management-.s3

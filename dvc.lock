@@ -5,8 +5,8 @@ stages:
     deps:
     - path: eda_and_feature_extraction.py
       hash: md5
-      md5: 8931d029e98c6ab0ca6435bda244cdde
-      size: 10865
+      md5: 76c68571878221d3f635987ca81a3b64
+      size: 11918
     - path: params.yaml
       hash: md5
       md5: dbf070154ba0f926ecb009e934b66ee7
@@ -22,8 +22,8 @@ stages:
       size: 199115
     - path: feature_importance.png
       hash: md5
-      md5: acb3739763942bbb006a8da3ea7f549b
-      size: 63197
+      md5: 29abd5079cbba51c7aac8a5a3634cea4
+      size: 86142
     - path: features_ready.csv
       hash: md5
       md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
@@ -50,7 +50,7 @@ stages:
       size: 284
     - path: reports/classification_comparison.csv
       hash: md5
-      md5: 6fccc69bc5a89ce54c81baa8cf351a57
+      md5: ee01be711a040751afd9bfd049e45542
       size: 587
     - path: reports/model_comparison_classification.png
       hash: md5
@@ -62,5 +62,5 @@ stages:
       size: 76014
     - path: reports/regression_comparison.csv
       hash: md5
-      md5: 716a5d290bd8d35c0d729f3d8e2f3b44
+      md5: 88d5b005f7a7367278be563cb1b5a683
       size: 596
