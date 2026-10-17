@@ -1,4 +1,10 @@
 {
+  "lakefs_metadata": {
+    "repository": "college-event-data",
+    "branch": "main",
+    "commit_id": "89938529e991f40ec64880d1dc717b5ffcea01af97ba090665afc495265fd232",
+    "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+  },
   "attendance_regression": {
     "champion_model": "Gradient Boosting",
     "test_mae": 13.75,

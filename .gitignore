@@ -7,3 +7,4 @@ mlruns/
 __pycache__/
 .venv/
 campus/
+.neptune/

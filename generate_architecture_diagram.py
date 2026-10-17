@@ -81,12 +81,12 @@ def draw_architecture():
               "• Booking Status & Reg. Attendance"],
              bg_color='#161b22', border_col='#238636', badge="DATA V1", badge_col='#238636')
     
-    draw_box(0.6, 3.7, 3.0, 2.0, "Data Version Control", "DVC Pipeline Management",
-             ["• dvc.yaml & dvc.lock Tracking",
-              "• Hash-based Data Checksums",
-              "• Immutable Pipeline Stages",
-              "• Deterministic Repro (`dvc repro`)"],
-             bg_color='#161b22', border_col='#1f6feb', badge="DVC TRACKED", badge_col='#1f6feb')
+    draw_box(0.6, 3.7, 3.0, 2.0, "Data Lake Versioning", "lakeFS Architecture",
+             ["• Branching: main / experiments",
+              "• Zero-Copy Data Versioning",
+              "• Immutable Commit Checksums",
+              "• Object Storage (S3 / lakeFS API)"],
+             bg_color='#161b22', border_col='#00d084', badge="LAKEFS TRACKED", badge_col='#00d084')
 
     # Column 2: Feature Engineering (x=4.2, w=3.4)
     ax.text(5.9, 8.5, "2. FEATURE EXTRACTION", ha='center', va='center',
@@ -132,15 +132,15 @@ def draw_architecture():
     ax.text(13.9, 8.5, "4. MLOps & REGISTRY", ha='center', va='center',
             fontsize=10, fontweight='bold', color='#f778ba', family='sans-serif')
     
-    draw_box(12.4, 6.1, 3.0, 2.1, "MLflow Experiment Tracking", "sqlite:///mlflow.db & Artifacts",
-             ["• Full Hyperparameter Logging",
+    draw_box(12.4, 6.1, 3.0, 2.1, "Neptune.ai Experiment Tracking", "app.neptune.ai & Metadata",
+             ["• Full Hyperparameter & Run Logging",
               "• 5-Fold Stratified CV Scores",
-              "• Confusion Matrices & ROC Curves",
-              "• Model Signatures & Input Examples"],
-             bg_color='#161b22', border_col='#da3633', badge="MLFLOW UI", badge_col='#da3633')
+              "• Residual Plots & Confusion Matrices",
+              "• lakeFS Lineage & Artifact Registry"],
+             bg_color='#161b22', border_col='#0070f3', badge="NEPTUNE.AI", badge_col='#0070f3')
 
     draw_box(12.4, 3.7, 3.0, 2.1, "Model Registry & Metrics", "Production Deployment Gate",
-             ["• @champion Production Alias",
+             ["• @champion Production Tagging",
               "• college-approval-champion",
               "• reports/champion_metrics.json",
               "• Automated Benchmarking Reports"],
@@ -148,9 +148,9 @@ def draw_architecture():
 
     # Bottom Stage: System Verification / CLI Layer (x=0.6, y=0.8, w=14.8, h=2.2)
     draw_box(0.6, 0.8, 14.8, 2.2, "Automated Operational Workflow & Reproducibility Stack", "CLI & End-to-End Orchestration",
-             ["• Step 1: `dvc repro` ──────> Executes deterministic DAG: Feature Extraction -> Model Training -> Metrics Evaluation",
-              "• Step 2: `python3 calculate_scores.py` ──> Generates champion_metrics.json & detailed multi-metric CSV reports",
-              "• Step 3: `mlflow ui --backend-store-uri sqlite:///mlflow.db` ──> Serves interactive visualization dashboard on localhost:5000",
+             ["• Step 1: `python3 lakefs_versioning.py sync` ──> Creates immutable commit on lakeFS for raw & processed datasets",
+              "• Step 2: `python3 train_models_neptune.py` ──> Trains 8 models, tracks runs to Neptune.ai & logs lakeFS commit ID",
+              "• Step 3: `neptune sync` ──> Synchronizes local offline runs to Neptune.ai collaborative web dashboard",
               "• Production Safeguards: Stratified 5-Fold CV, Class Imbalance Handling (class_weight='balanced'), Zero Target Leakage"],
              bg_color='#161b22', border_col='#388bfd')
 
@@ -158,18 +158,18 @@ def draw_architecture():
     # Data to Feature Extraction
     draw_arrow(3.6, 7.2, 4.2, 6.5, "Raw CSV")
     draw_arrow(2.1, 5.7, 2.1, 6.2, "Sync")
-    draw_arrow(3.6, 4.7, 4.2, 5.0, "DVC DAG")
+    draw_arrow(3.6, 4.7, 4.2, 5.0, "lakeFS Commit")
 
     # Feature Extraction to Pipelines
     draw_arrow(7.6, 6.3, 8.2, 7.15, "Features (No Leak)")
     draw_arrow(7.6, 4.7, 8.2, 4.75, "All Features")
 
-    # Pipelines to MLflow
-    draw_arrow(11.8, 7.15, 12.4, 7.15, "Log Metrics")
+    # Pipelines to Neptune
+    draw_arrow(11.8, 7.15, 12.4, 7.15, "Log to Neptune")
     draw_arrow(11.8, 4.75, 12.4, 4.75, "Register Model")
 
-    # MLflow to Registry
-    draw_arrow(13.9, 6.1, 13.9, 5.8, "Alias Tagging")
+    # Neptune to Registry
+    draw_arrow(13.9, 6.1, 13.9, 5.8, "Champion Tag")
 
     # Pipeline to bottom layer
     draw_arrow(8.0, 3.7, 8.0, 3.0, "End-to-End Validation", color='#388bfd')

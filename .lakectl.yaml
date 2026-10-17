@@ -1,0 +1,7 @@
+# lakectl client configuration
+server:
+  endpoint_url: http://127.0.0.1:8000/api/v1
+
+credentials:
+  access_key_id: AKIAIOSFOLQUICKSTART
+  secret_access_key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY

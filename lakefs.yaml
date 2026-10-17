@@ -1,0 +1,38 @@
+# ==============================================================================
+# lakeFS Data Lake Versioning Configuration
+# ==============================================================================
+version: 1
+
+server:
+  endpoint_url: "http://localhost:8000/api/v1"
+  # Set via environment variables:
+  # LAKEFS_ACCESS_KEY_ID
+  # LAKEFS_SECRET_ACCESS_KEY
+
+repository:
+  name: "college-event-data"
+  default_branch: "main"
+  storage_namespace: "s3://college-event-bucket/lakefs"
+
+branches:
+  production: "main"
+  experiments: "experiment-models-v1"
+
+datasets:
+  raw:
+    local_path: "synthetic_event_data.csv"
+    lakefs_path: "raw/synthetic_event_data.csv"
+    description: "Raw historical booking logs, faculty records, and student registrations."
+  features:
+    local_path: "features_ready.csv"
+    lakefs_path: "processed/features_ready.csv"
+    description: "Engineered feature dataset containing 21 spatio-temporal features."
+
+lakectl_commands:
+  init_repo: "lakectl repo create lakefs://college-event-data s3://college-event-bucket/lakefs"
+  upload_raw: "lakectl fs upload -s synthetic_event_data.csv lakefs://college-event-data/main/raw/synthetic_event_data.csv"
+  upload_features: "lakectl fs upload -s features_ready.csv lakefs://college-event-data/main/processed/features_ready.csv"
+  commit: "lakectl commit lakefs://college-event-data/main -m 'Ingest raw data and features'"
+  create_branch: "lakectl branch create lakefs://college-event-data/experiments --source lakefs://college-event-data/main"
+  diff: "lakectl diff lakefs://college-event-data/main"
+  log: "lakectl log lakefs://college-event-data/main"

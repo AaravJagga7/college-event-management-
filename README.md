@@ -18,34 +18,33 @@ The system is architected as an automated dual-task prediction and decision-supp
 
 ```bash
 college-event-management/
-├── requirements.txt                   # Production Python dependencies
+├── requirements.txt                   # Production Python dependencies (lakeFS & Neptune.ai)
 ├── README.md                          # Comprehensive system documentation
 ├── ml_architecture.png                # High-resolution ML pipeline architecture diagram
 ├── generate_architecture_diagram.py   # Script to regenerate system architecture diagram
 ├── config.yaml                        # Centralized hyperparameter & pipeline configuration
-├── params.yaml                        # DVC stage parameter declarations
-├── dvc.yaml                           # DVC pipeline DAG configuration
-├── dvc.lock                           # DVC reproducible execution lockfile
+├── lakefs.yaml                        # lakeFS repository & branch configuration
+├── lakefs_versioning.py               # lakeFS data lake client, branch & commit manager
 ├── synthetic_event_data.csv           # Raw transactional event booking records (1,200 rows)
 ├── features_ready.csv                 # Engineered feature store (21 features)
 │
 ├── eda_and_feature_extraction.py      # Exploratory data analysis & feature engineering engine
-├── train_models_mlflow.py             # Model training, 5-fold CV, metrics calculation & MLflow registry
+├── train_models_neptune.py            # Model training, 5-fold CV, metrics & Neptune.ai experiment tracking
 ├── calculate_scores.py                # Standalone evaluation & champion metric exporter
 │
-├── mlflow.db                          # SQLite backend tracking database for MLflow
-├── mlruns/                            # Serialized model artifacts, signatures & metrics
+├── .lakefs/                           # lakeFS local commit ledger & repository state
+├── .neptune/                          # Local metadata store for Neptune offline runs
 │
 └── reports/                           # Evaluation plots, confusion matrices & benchmark reports
     ├── champion_metrics.json          # Production champion model parameters & scores
     ├── detailed_classification_metrics.csv
     ├── classification_comparison.csv
     ├── regression_comparison.csv
-    ├── cm_random_forest.png
-    ├── cm_gradient_boosting.png
-    ├── cm_decision_tree.png
-    ├── cm_voting_classifier.png
+    ├── models/                        # Serialized .joblib champion model artifacts
+    ├── cm_cls_random_forest.png
+    ├── cm_cls_gradient_boosting.png
     ├── eval_reg_gradient_boosting.png
+    ├── model_comparison_regression.png
     └── model_comparison_classification.png
 ```
 
@@ -162,37 +161,38 @@ source .venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 2. Execute Feature Extraction & Model Training
-Run the complete training pipeline with MLflow logging and model registry:
+### 2. Version Datasets with lakeFS
+Synchronize raw event records and engineered feature stores into lakeFS with zero-copy isolation and commit tracking:
+
+```bash
+# Sync data to lakeFS and generate an immutable commit hash
+python3 lakefs_versioning.py sync -m "Version raw records and 21 engineered features"
+
+# Check lakeFS data versioning status and tracked object URIs
+python3 lakefs_versioning.py status
+```
+
+### 3. Execute Feature Extraction & Train Models with Neptune.ai
+Run feature extraction and track experiments to Neptune.ai:
 
 ```bash
 # Run EDA & Feature Engineering
 python3 eda_and_feature_extraction.py
 
-# Train models & log runs to MLflow
-python3 train_models_mlflow.py
+# Train 8 regression & classification models, logging to Neptune.ai
+python3 train_models_neptune.py
 ```
 
-### 3. Reproduce with DVC (Data Version Control)
-The pipeline is fully orchestrated via DVC:
+> **Note on Neptune.ai Connectivity:**  
+> If `NEPTUNE_API_TOKEN` and `NEPTUNE_PROJECT` are exported in your environment, runs will stream in real time to your cloud workspace (`app.neptune.ai`). Without tokens, the pipeline runs seamlessly in `offline` mode, saving metadata to `.neptune/` which can be synchronized at any time with `neptune sync`.
+
+### 4. Synchronize & View Neptune Dashboard
+To inspect runs, hyperparameters, residuals, confusion matrices, and champion tags:
 
 ```bash
-# Execute end-to-end reproducible pipeline
-dvc repro
-
-# View pipeline stage status
-dvc status
+# Optional: Synchronize offline experiment runs to Neptune.ai
+neptune sync
 ```
-
-### 4. Launch Interactive MLflow Dashboard
-Inspect runs, hyperparameters, confusion matrix figures, and model artifacts:
-
-```bash
-mlflow ui --backend-store-uri sqlite:///mlflow.db
-```
-Open **`http://127.0.0.1:5000`** in your browser to explore:
-- Experiments: `college-event-models`
-- Registered Models: `college-approval-champion` tagged with `@champion`
 
 ### 5. Generate Metrics Summary & Architecture Image
 ```bash
@@ -207,7 +207,7 @@ python3 generate_architecture_diagram.py
 
 ## 🔒 Production Governance & MLOps Highlights
 
-- **Experiment Tracking**: Tracks 19+ distinct evaluation metrics, run parameters, and input examples for full auditability.
-- **Model Registry**: Champion models automatically register under `college-approval-champion` with the `@champion` production alias for downstream deployment.
-- **Data & Pipeline Versioning**: Git versions source code while DVC versions dataset hashes and intermediate stage outputs (`features_ready.csv`), guaranteeing zero configuration drift.
-- **No Target Leakage**: Attendance forecasting strictly omits downstream outcome signals, ensuring models remain valid for operational deployment.
+- **Experiment Tracking**: Full run logging via **Neptune.ai** tracking 19+ metrics, hyperparameters, evaluation plots, and serialized model weights.
+- **Model Governance**: Champion models dynamically selected and staged with production tags (`@champion`, `stage:production`).
+- **Data Lake Versioning**: **lakeFS** provides Git-like zero-copy branching, atomic commits, and immutable object lineage (`lakefs://college-event-data/main/...`), ensuring complete data-to-model provenance.
+- **Leakage Firewall**: Strict exclusion of post-event booking decision outcomes from attendance forecasting models, guaranteeing zero data leakage in production.

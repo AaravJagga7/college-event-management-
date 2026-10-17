@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Neptune.ai — College Event Management Experiment Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg-main: #0B0F19;
+      --bg-card: #111827;
+      --bg-card-hover: #172033;
+      --bg-subtle: #1F2937;
+      --border-color: #2D3748;
+      --border-highlight: #3B82F6;
+      --text-main: #F9FAFB;
+      --text-muted: #9CA3AF;
+      --accent-cyan: #00D2FF;
+      --accent-blue: #2563EB;
+      --accent-purple: #8B5CF6;
+      --accent-emerald: #10B981;
+      --accent-rose: #F43F5E;
+      --accent-amber: #F59E0B;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Top Navigation Bar */
+    header {
+      background-color: #080C14;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0.85rem 1.75rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .brand-section {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .logo-container {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      text-decoration: none;
+      color: var(--text-main);
+    }
+
+    .logo-icon {
+      width: 28px;
+      height: 28px;
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 800;
+      font-size: 16px;
+      color: #0B0F19;
+      box-shadow: 0 0 12px rgba(0, 210, 255, 0.4);
+    }
+
+    .logo-text {
+      font-weight: 700;
+      font-size: 1.15rem;
+      letter-spacing: -0.02em;
+    }
+
+    .logo-text span {
+      color: var(--accent-cyan);
+    }
+
+    .project-pill {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      background-color: var(--bg-subtle);
+      border: 1px solid var(--border-color);
+      padding: 0.35rem 0.75rem;
+      border-radius: 9999px;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+
+    .project-pill strong {
+      color: var(--text-main);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 0.85rem;
+    }
+
+    .badge-lakefs {
+      background: rgba(0, 208, 132, 0.15);
+      border: 1px solid #00D084;
+      color: #00D084;
+      padding: 0.25rem 0.65rem;
+      border-radius: 6px;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+    }
+
+    .badge-lakefs .dot {
+      width: 6px;
+      height: 6px;
+      background-color: #00D084;
+      border-radius: 50%;
+      box-shadow: 0 0 8px #00D084;
+    }
+
+    .btn-sync {
+      background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
+      color: #06090F;
+      border: none;
+      padding: 0.45rem 1rem;
+      border-radius: 6px;
+      font-weight: 600;
+      font-size: 0.82rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+    }
+
+    .btn-sync:hover {
+      box-shadow: 0 0 16px rgba(0, 210, 255, 0.45);
+      transform: translateY(-1px);
+    }
+
+    /* Subheader Tabs */
+    .nav-tabs {
+      background-color: #0D1322;
+      border-bottom: 1px solid var(--border-color);
+      padding: 0 1.75rem;
+      display: flex;
+      gap: 1.5rem;
+      overflow-x: auto;
+    }
+
+    .tab-item {
+      padding: 0.85rem 0.25rem;
+      color: var(--text-muted);
+      cursor: pointer;
+      font-size: 0.88rem;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s ease;
+      white-space: nowrap;
+    }
+
+    .tab-item:hover {
+      color: var(--text-main);
+    }
+
+    .tab-item.active {
+      color: var(--accent-cyan);
+      border-bottom-color: var(--accent-cyan);
+      font-weight: 600;
+    }
+
+    /* Main Container */
+    main {
+      padding: 1.75rem;
+      flex: 1;
+      max-width: 1600px;
+      margin: 0 auto;
+      width: 100%;
+    }
+
+    /* KPI Cards Grid */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 1.25rem;
+      margin-bottom: 1.75rem;
+    }
+
+    .kpi-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.25rem;
+      position: relative;
+      overflow: hidden;
+      transition: transform 0.2s ease, border-color 0.2s ease;
+    }
+
+    .kpi-card:hover {
+      border-color: rgba(0, 210, 255, 0.4);
+      transform: translateY(-2px);
+    }
+
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 3px;
+    }
+
+    .kpi-card.blue::before { background: linear-gradient(90deg, var(--accent-cyan), var(--accent-blue)); }
+    .kpi-card.purple::before { background: linear-gradient(90deg, #A855F7, #EC4899); }
+    .kpi-card.green::before { background: linear-gradient(90deg, #10B981, #06B6D4); }
+    .kpi-card.amber::before { background: linear-gradient(90deg, #F59E0B, #EF4444); }
+
+    .kpi-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.6rem;
+    }
+
+    .kpi-title {
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .kpi-tag {
+      font-size: 0.7rem;
+      padding: 0.15rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .tag-champion {
+      background: rgba(139, 92, 246, 0.2);
+      color: #C084FC;
+      border: 1px solid rgba(139, 92, 246, 0.4);
+    }
+
+    .kpi-value {
+      font-size: 1.85rem;
+      font-weight: 700;
+      color: var(--text-main);
+      font-family: 'JetBrains Mono', monospace;
+      margin-bottom: 0.35rem;
+    }
+
+    .kpi-desc {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+    }
+
+    .kpi-desc strong {
+      color: var(--accent-cyan);
+    }
+
+    /* Section Panels */
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+      animation: fadeIn 0.25s ease-out;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .panel-card {
+      background-color: var(--bg-card);
+      border: 1px solid var(--border-color);
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .panel-title {
+      font-size: 1.15rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+    }
+
+    .panel-subtitle {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 1.25rem;
+    }
+
+    /* Interactive Table */
+    .table-container {
+      overflow-x: auto;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    th {
+      background-color: #0E1526;
+      color: var(--text-muted);
+      padding: 0.85rem 1rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.72rem;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border-color);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 0.85rem 1rem;
+      border-bottom: 1px solid #1A2333;
+      color: var(--text-main);
+      white-space: nowrap;
+    }
+
+    tr:hover td {
+      background-color: var(--bg-card-hover);
+    }
+
+    .mono {
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 0.2rem 0.55rem;
+      border-radius: 4px;
+      font-size: 0.72rem;
+      font-weight: 600;
+    }
+
+    .pill-reg {
+      background: rgba(37, 99, 235, 0.15);
+      color: #60A5FA;
+      border: 1px solid rgba(37, 99, 235, 0.35);
+    }
+
+    .pill-cls {
+      background: rgba(16, 185, 129, 0.15);
+      color: #34D399;
+      border: 1px solid rgba(16, 185, 129, 0.35);
+    }
+
+    .pill-champion {
+      background: rgba(236, 72, 153, 0.2);
+      color: #F472B6;
+      border: 1px solid rgba(236, 72, 153, 0.4);
+    }
+
+    .metric-high {
+      color: #34D399;
+      font-weight: 600;
+    }
+
+    /* Grid for Charts & Images */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+      gap: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .image-card {
+      background: #0E1526;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      padding: 1rem;
+      text-align: center;
+    }
+
+    .image-card h4 {
+      font-size: 0.92rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-main);
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .image-card img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 6px;
+      border: 1px solid #1E283A;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+
+    /* Code Block styling */
+    pre {
+      background-color: #070B12;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 1rem;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 0.82rem;
+      color: #A5B4FC;
+      overflow-x: auto;
+      line-height: 1.5;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--border-color);
+      padding: 1.25rem 1.75rem;
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background-color: #080C14;
+    }
+
+    footer a {
+      color: var(--accent-cyan);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Top Header -->
+  <header>
+    <div class="brand-section">
+      <a href="https://app.neptune.ai" target="_blank" class="logo-container">
+        <div class="logo-icon">🔱</div>
+        <div class="logo-text">neptune<span>.ai</span></div>
+      </a>
+      <div class="project-pill">
+        <span>Project:</span>
+        <strong>workspace/college-event-ml</strong>
+      </div>
+    </div>
+
+    <div class="header-actions">
+      <div class="badge-lakefs">
+        <div class="dot"></div>
+        <span>lakeFS: <strong>main @ 89938529e991</strong></span>
+      </div>
+      <a href="https://app.neptune.ai" target="_blank" class="btn-sync">
+        <span>☁️ Open Neptune Cloud</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- Navigation Tabs -->
+  <div class="nav-tabs">
+    <div class="tab-item active" onclick="switchTab('experiments')">📊 Experiments & Runs (9)</div>
+    <div class="tab-item" onclick="switchTab('visualizations')">📈 Evaluation Plots & Comparison</div>
+    <div class="tab-item" onclick="switchTab('champions')">🏆 Champion Models & Registry</div>
+    <div class="tab-item" onclick="switchTab('lakefs')">🌊 lakeFS Data Lineage</div>
+    <div class="tab-item" onclick="switchTab('architecture')">🏛️ Full ML Architecture</div>
+    <div class="tab-item" onclick="switchTab('sync')">⚡ Sync & Cloud Setup</div>
+  </div>
+
+  <main>
+
+    <!-- KPI Summary Cards -->
+    <div class="kpi-grid">
+      <div class="kpi-card blue">
+        <div class="kpi-header">
+          <span class="kpi-title">Total Tracked Runs</span>
+          <span class="kpi-tag tag-champion">Active</span>
+        </div>
+        <div class="kpi-value">9 Runs</div>
+        <div class="kpi-desc">4 Regression + 4 Classification + 1 Champion</div>
+      </div>
+
+      <div class="kpi-card purple">
+        <div class="kpi-header">
+          <span class="kpi-title">Attendance Champion</span>
+          <span class="kpi-tag tag-champion">@champion</span>
+        </div>
+        <div class="kpi-value">R² 0.558</div>
+        <div class="kpi-desc"><strong>Gradient Boosting</strong> | Test MAE: 13.75 | CV R²: 0.560</div>
+      </div>
+
+      <div class="kpi-card green">
+        <div class="kpi-header">
+          <span class="kpi-title">Approval Champion</span>
+          <span class="kpi-tag tag-champion">@champion</span>
+        </div>
+        <div class="kpi-value">AUC 0.920</div>
+        <div class="kpi-desc"><strong>Random Forest</strong> | F1: 0.972 | Accuracy: 95.0%</div>
+      </div>
+
+      <div class="kpi-card amber">
+        <div class="kpi-header">
+          <span class="kpi-title">Data Lake Version</span>
+          <span class="kpi-tag tag-champion">lakeFS</span>
+        </div>
+        <div class="kpi-value mono">c_30a0719c</div>
+        <div class="kpi-desc">Branch: <strong>main</strong> | 21 Features (Zero Target Leakage)</div>
+      </div>
+    </div>
+
+    <!-- TAB 1: Experiments Table -->
+    <div id="tab-experiments" class="tab-content active">
+      <div class="panel-card">
+        <div class="panel-title">
+          <span>🔱 Neptune.ai Experiment Run Ledger</span>
+        </div>
+        <div class="panel-subtitle">
+          Comprehensive multi-model tracking across Task A (Attendance Regression) and Task B (Room Booking Approval Classification).
+        </div>
+
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>Run Name</th>
+                <th>Task</th>
+                <th>Model Architecture</th>
+                <th>Cross-Validation Score</th>
+                <th>Primary Metric</th>
+                <th>Secondary Metric</th>
+                <th>lakeFS Lineage</th>
+                <th>Tags & Production Status</th>
+              </tr>
+            </thead>
+            <tbody>
+              <!-- Regression Runs -->
+              <tr>
+                <td class="mono"><strong>Reg_Gradient_Boosting</strong></td>
+                <td><span class="pill pill-reg">Regression</span></td>
+                <td>GradientBoostingRegressor (n=150, lr=0.05, d=4)</td>
+                <td class="mono">5-Fold R²: <strong>0.560</strong> (±0.038)</td>
+                <td class="mono metric-high">Test R² = 0.558</td>
+                <td class="mono">MAE = 13.75 | RMSE = 19.08</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill pill-champion">👑 REG CHAMPION</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Reg_Voting_Regressor</td>
+                <td><span class="pill pill-reg">Regression</span></td>
+                <td>VotingRegressor (DT + RF + GB, w=[1,2,2])</td>
+                <td class="mono">5-Fold R²: 0.539 (±0.041)</td>
+                <td class="mono">Test R² = 0.526</td>
+                <td class="mono">MAE = 14.63 | RMSE = 19.76</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Candidate</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Reg_Random_Forest</td>
+                <td><span class="pill pill-reg">Regression</span></td>
+                <td>RandomForestRegressor (n=150, d=8, min_leaf=3)</td>
+                <td class="mono">5-Fold R²: 0.511 (±0.044)</td>
+                <td class="mono">Test R² = 0.505</td>
+                <td class="mono">MAE = 15.00 | RMSE = 20.19</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Candidate</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Reg_Decision_Tree</td>
+                <td><span class="pill pill-reg">Regression</span></td>
+                <td>DecisionTreeRegressor (d=6, min_leaf=5)</td>
+                <td class="mono">5-Fold R²: 0.376 (±0.052)</td>
+                <td class="mono">Test R² = 0.366</td>
+                <td class="mono">MAE = 17.18 | RMSE = 22.86</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Baseline</span></td>
+              </tr>
+
+              <!-- Classification Runs -->
+              <tr>
+                <td class="mono"><strong>Cls_Random_Forest</strong></td>
+                <td><span class="pill pill-cls">Classification</span></td>
+                <td>RandomForestClassifier (n=150, d=6, balanced)</td>
+                <td class="mono">5-Fold AUC: <strong>0.894</strong> (±0.032)</td>
+                <td class="mono metric-high">ROC-AUC = 0.920</td>
+                <td class="mono">F1 = 0.972 | Acc = 95.0%</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill pill-champion">👑 CLS CHAMPION</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Cls_Voting_Classifier</td>
+                <td><span class="pill pill-cls">Classification</span></td>
+                <td>VotingClassifier (Soft, DT + RF + GB, w=[1,2,2])</td>
+                <td class="mono">5-Fold AUC: 0.879 (±0.035)</td>
+                <td class="mono">ROC-AUC = 0.918</td>
+                <td class="mono">F1 = 0.974 | Acc = 95.4%</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Candidate</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Cls_Gradient_Boosting</td>
+                <td><span class="pill pill-cls">Classification</span></td>
+                <td>GradientBoostingClassifier (n=150, lr=0.05, d=3)</td>
+                <td class="mono">5-Fold AUC: 0.873 (±0.036)</td>
+                <td class="mono">ROC-AUC = 0.891</td>
+                <td class="mono">F1 = 0.977 | Acc = 95.8%</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Candidate</span></td>
+              </tr>
+              <tr>
+                <td class="mono">Cls_Decision_Tree</td>
+                <td><span class="pill pill-cls">Classification</span></td>
+                <td>DecisionTreeClassifier (d=5, min_leaf=4, balanced)</td>
+                <td class="mono">5-Fold AUC: 0.823 (±0.040)</td>
+                <td class="mono">ROC-AUC = 0.878</td>
+                <td class="mono">F1 = 0.957 | Acc = 92.5%</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill" style="background:#1E293B;color:#94A3B8;">Baseline</span></td>
+              </tr>
+
+              <!-- Champion Summary Run -->
+              <tr style="background: rgba(139, 92, 246, 0.08);">
+                <td class="mono"><strong>Champion_Production_Summary</strong></td>
+                <td><span class="pill pill-champion">Production</span></td>
+                <td>Meta-Registry: GBR (Task A) + RF (Task B)</td>
+                <td class="mono">Staged to @champion</td>
+                <td class="mono metric-high">Saved JSON & Artifacts</td>
+                <td class="mono">reports/champion_metrics.json</td>
+                <td class="mono" style="color: #00D084;">89938529e991</td>
+                <td><span class="pill pill-champion">🚀 STAGED FOR SERVING</span></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 2: Visualizations -->
+    <div id="tab-visualizations" class="tab-content">
+      <div class="panel-card">
+        <div class="panel-title">📈 Model Comparison & Benchmark Visualizations</div>
+        <div class="panel-subtitle">Automatically logged and uploaded to Neptune.ai run artifacts.</div>
+
+        <div class="image-grid">
+          <div class="image-card">
+            <h4>Task A: Attendance Forecaster — Test R² & MAE Benchmarks</h4>
+            <img src="reports/model_comparison_regression.png" alt="Regression Comparison">
+          </div>
+          <div class="image-card">
+            <h4>Task B: Room Booking Approval — ROC-AUC & F1-Score Benchmarks</h4>
+            <img src="reports/model_comparison_classification.png" alt="Classification Comparison">
+          </div>
+          <div class="image-card">
+            <h4>Task A Champion: Gradient Boosting Actual vs Predicted & Residuals</h4>
+            <img src="reports/eval_reg_gradient_boosting.png" alt="Gradient Boosting Residuals">
+          </div>
+          <div class="image-card">
+            <h4>Task B Champion: Random Forest Confusion Matrix</h4>
+            <img src="reports/cm_cls_random_forest.png" alt="Random Forest Confusion Matrix">
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 3: Champion Models -->
+    <div id="tab-champions" class="tab-content">
+      <div class="panel-card">
+        <div class="panel-title">🏆 Champion Models Specification & Production Gates</div>
+        <div class="panel-subtitle">Identified, validated via 5-fold cross validation, and staged under <code>@champion</code> for operational serving.</div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+          <div style="background: #0E1526; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+            <h3 style="color: var(--accent-cyan); margin-bottom: 0.5rem; font-size: 1.05rem;">Task A Champion: Gradient Boosting Regressor</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Target: <code>TARGET_registers</code> (Attendance Turnout)</p>
+            <table style="font-size: 0.82rem;">
+              <tr><td><strong>Test R²</strong></td><td class="mono metric-high">0.558</td></tr>
+              <tr><td><strong>Test MAE</strong></td><td class="mono">13.75 students</td></tr>
+              <tr><td><strong>Test RMSE</strong></td><td class="mono">19.08</td></tr>
+              <tr><td><strong>5-Fold CV R² (Mean)</strong></td><td class="mono">0.560 (±0.038)</td></tr>
+              <tr><td><strong>Leakage Prevention</strong></td><td>Strictly excludes TARGET_accept & fill_ratio</td></tr>
+              <tr><td><strong>Artifact File</strong></td><td class="mono">reports/models/reg_gradient_boosting.joblib</td></tr>
+            </table>
+          </div>
+
+          <div style="background: #0E1526; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem;">
+            <h3 style="color: #34D399; margin-bottom: 0.5rem; font-size: 1.05rem;">Task B Champion: Random Forest Classifier</h3>
+            <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">Target: <code>TARGET_accept</code> (Room Approval Decision)</p>
+            <table style="font-size: 0.82rem;">
+              <tr><td><strong>ROC-AUC</strong></td><td class="mono metric-high">0.920</td></tr>
+              <tr><td><strong>F1-Score</strong></td><td class="mono">0.972</td></tr>
+              <tr><td><strong>Accuracy</strong></td><td class="mono">95.00%</td></tr>
+              <tr><td><strong>Sensitivity (Recall)</strong></td><td class="mono">98.12%</td></tr>
+              <tr><td><strong>Specificity</strong></td><td class="mono">70.37%</td></tr>
+              <tr><td><strong>Artifact File</strong></td><td class="mono">reports/models/cls_random_forest.joblib</td></tr>
+            </table>
+          </div>
+        </div>
+
+        <div style="margin-top: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.6rem;">Production Metadata (reports/champion_metrics.json):</h4>
+          <pre>{
+  "lakefs_metadata": {
+    "repository": "college-event-data",
+    "branch": "main",
+    "commit_id": "89938529e991",
+    "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+  },
+  "attendance_regression": {
+    "champion_model": "Gradient Boosting",
+    "test_mae": 13.75,
+    "test_r2": 0.558,
+    "cv_r2": 0.560
+  },
+  "booking_approval": {
+    "champion_model": "Random Forest",
+    "test_roc_auc": 0.920,
+    "test_f1": 0.972,
+    "test_accuracy": 0.950
+  }
+}</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 4: lakeFS Data Lineage -->
+    <div id="tab-lakefs" class="tab-content">
+      <div class="panel-card">
+        <div class="panel-title">🌊 lakeFS Data Lake Versioning & Object Lineage</div>
+        <div class="panel-subtitle">Git-for-Data architecture guaranteeing zero-copy branching, atomic commits, and cryptographic dataset provenance.</div>
+
+        <div style="background: #0E1526; border: 1px solid var(--border-color); border-radius: 8px; padding: 1.25rem; margin-bottom: 1.5rem;">
+          <h4 style="color: #00D084; margin-bottom: 0.75rem;">Active Repository State:</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); line-height: 1.8;">
+            • <strong>Repository:</strong> <code>college-event-data</code><br>
+            • <strong>Active Branch:</strong> <code>main</code> (Experimental branch: <code>experiment-models-v1</code>)<br>
+            • <strong>Latest Commit Hash:</strong> <code class="mono" style="color: #00D084;">89938529e991</code><br>
+            • <strong>Remote Endpoint:</strong> <code>http://localhost:8000/api/v1</code> (Supports AWS S3, MinIO, Azure Blob & Local Blockstore)<br>
+            • <strong>Tracked Objects:</strong><br>
+            &nbsp;&nbsp;&nbsp;&nbsp;1. <code>lakefs://college-event-data/main/raw/synthetic_event_data.csv</code> (178 KB)<br>
+            &nbsp;&nbsp;&nbsp;&nbsp;2. <code>lakefs://college-event-data/main/processed/features_ready.csv</code> (81 KB, 21 Features)
+          </p>
+        </div>
+
+        <h4 style="font-size: 0.92rem; margin-bottom: 0.6rem;">lakeFS CLI & Pipeline Synchronization Commands:</h4>
+        <pre># Synchronize local data to lakeFS branch with commit message
+python3 lakefs_versioning.py sync -m "Version raw records and 21 engineered features"
+
+# Check status of tracked data lake objects
+python3 lakefs_versioning.py status
+
+# Native lakectl command equivalent:
+lakectl commit lakefs://college-event-data/main -m "Version raw data and features"</pre>
+      </div>
+    </div>
+
+    <!-- TAB 5: Architecture Diagram -->
+    <div id="tab-architecture" class="tab-content">
+      <div class="panel-card">
+        <div class="panel-title">🏛️ End-to-End MLOps & Machine Learning Architecture</div>
+        <div class="panel-subtitle">Modular integration between lakeFS Data Lake Versioning and Neptune.ai Experiment Tracking.</div>
+        <div style="text-align: center; margin-top: 1rem;">
+          <img src="ml_architecture.png" alt="MLOps System Architecture" style="max-width: 100%; height: auto; border-radius: 8px; border: 1px solid var(--border-color); box-shadow: 0 8px 24px rgba(0,0,0,0.6);">
+        </div>
+      </div>
+    </div>
+
+    <!-- TAB 6: Cloud Sync -->
+    <div id="tab-sync" class="tab-content">
+      <div class="panel-card">
+        <div class="panel-title">⚡ Neptune.ai Cloud Synchronization & Configuration</div>
+        <div class="panel-subtitle">How to stream runs directly to app.neptune.ai or synchronize offline experiment sessions.</div>
+
+        <div style="margin-bottom: 1.5rem;">
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.6rem;">1. Sync Existing Offline Runs to Neptune.ai:</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">All 9 model runs from this training session are currently stored locally in <code>.neptune/offline</code>. To push them to your cloud dashboard, run:</p>
+          <pre>export NEPTUNE_API_TOKEN="your_neptune_api_token"
+export NEPTUNE_PROJECT="your_workspace/college-event-ml"
+
+# Synchronize all local runs to cloud
+neptune sync</pre>
+        </div>
+
+        <div>
+          <h4 style="font-size: 0.95rem; margin-bottom: 0.6rem;">2. Live Cloud Streaming Mode:</h4>
+          <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 0.75rem;">Whenever <code>NEPTUNE_API_TOKEN</code> is set in your environment, <code>train_models_neptune.py</code> automatically switches from <code>offline</code> mode to <code>async</code> cloud streaming mode:</p>
+          <pre>python3 train_models_neptune.py</pre>
+        </div>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div>College Event Management System — Powered by <strong>lakeFS</strong> & <strong>Neptune.ai</strong></div>
+    <div>Dashboard: <a href="https://app.neptune.ai" target="_blank">app.neptune.ai</a></div>
+  </footer>
+
+  <script>
+    function switchTab(tabId) {
+      // Hide all tabs
+      document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.tab-item').forEach(el => el.classList.remove('active'));
+
+      // Show selected tab
+      const targetContent = document.getElementById('tab-' + tabId);
+      if (targetContent) {
+        targetContent.classList.add('active');
+      }
+
+      // Mark tab header active
+      event.currentTarget.classList.add('active');
+    }
+  </script>
+</body>
+</html>

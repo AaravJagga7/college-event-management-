@@ -1,5 +1,5 @@
-Model,Run ID,Model URI,Accuracy,Precision,Recall,F1-Score,ROC-AUC,CV ROC-AUC
-Decision Tree,faac1e108fdf43d4b355d461c75b7247,models:/m-1183fd269c974f5aa52bd328301b68ad,0.925,0.967,0.948,0.957,0.878,0.823
-Random Forest,3703ba40fbfb44fab71f541476534b7d,models:/m-ef41825be2264802a9dfb539641e4e4f,0.95,0.963,0.981,0.972,0.92,0.894
-Gradient Boosting,1664512ac96b405ea33b50537623b81d,models:/m-5f1e8943221041ca9cc34607f99688ba,0.958,0.963,0.991,0.977,0.891,0.873
-Voting Classifier,541824900d06451f90201f384e2928f0,models:/m-216404cb9bb74714bf8da4942de184f6,0.954,0.963,0.986,0.974,0.918,0.879
+Model,Neptune Run ID,ROC-AUC,CV ROC-AUC (Mean),CV ROC-AUC (Std),Accuracy,Precision,Recall,F1-Score
+Decision Tree,offline_decision_tree,0.878,0.823,0.095,0.925,0.967,0.948,0.957
+Random Forest,offline_random_forest,0.92,0.894,0.06,0.95,0.963,0.981,0.972
+Gradient Boosting,offline_gradient_boosting,0.891,0.873,0.092,0.958,0.963,0.991,0.977
+Voting Classifier,offline_voting_classifier,0.918,0.879,0.069,0.954,0.963,0.986,0.974
