@@ -8,7 +8,7 @@ project:
   description: Feature extraction and dual-task predictive modeling for event attendance and room booking approval.
 
 data:
-  raw_path: synthetic_event_data.csv
+  raw_path: rvce_8th_mile_data.csv
   processed_path: features_ready.csv
   datetime_formats:
     request_date: "%m/%d/%Y"
@@ -64,11 +64,26 @@ targets:
     name: TARGET_accept
     type: binary_classification
     description: Administrative decision (1 = Accept, 0 = Reject)
+  budget:
+    name: TARGET_budget
+    type: regression
+    description: Expected event financial budget in INR
 
 leakage_prevention:
   # Strictly forbidden in TARGET_registers model
   forbidden_for_registers:
     - TARGET_registers
+    - TARGET_accept
+    - fill_ratio
+    - TARGET_budget
+  # Strictly forbidden in TARGET_accept model
+  forbidden_for_accept:
+    - TARGET_registers
+    - TARGET_accept
+    - TARGET_budget
+  # Strictly forbidden in TARGET_budget model
+  forbidden_for_budget:
+    - TARGET_budget
     - TARGET_accept
     - fill_ratio
 
@@ -79,14 +94,21 @@ modeling:
     cv_folds: 5
 
   random_forest_regressor:
-    n_estimators: 100
+    n_estimators: 150
     random_state: 42
-    max_depth: null
+    max_depth: 8
+    min_samples_leaf: 3
     n_jobs: -1
 
-  random_forest_classifier:
-    n_estimators: 100
+  gradient_boosting_regressor:
+    n_estimators: 150
+    learning_rate: 0.05
+    max_depth: 4
     random_state: 42
-    max_depth: null
+
+  random_forest_classifier:
+    n_estimators: 150
+    random_state: 42
+    max_depth: 6
     class_weight: balanced
     n_jobs: -1

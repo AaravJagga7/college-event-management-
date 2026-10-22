@@ -87,9 +87,9 @@ df = pd.read_csv(DATA_PATH)
 print(f"Loaded {df.shape[0]} rows, {df.shape[1]} features from {DATA_PATH}.")
 
 # Define feature sets strictly preventing data leakage
-LEAKY_COLS = ["TARGET_registers", "TARGET_accept", "fill_ratio"]
+LEAKY_COLS = ["TARGET_registers", "TARGET_accept", "fill_ratio", "TARGET_budget"]
 feature_cols_reg = [c for c in df.columns if c not in LEAKY_COLS]
-feature_cols_cls = [c for c in df.columns if c not in ["TARGET_registers", "TARGET_accept"]]
+feature_cols_cls = [c for c in df.columns if c not in ["TARGET_registers", "TARGET_accept", "TARGET_budget"]]
 
 # ------------------------------------------------------------------------------
 # 1. TASK A: ATTENDANCE REGRESSION (TARGET_registers)
@@ -425,28 +425,35 @@ champ_run["reports/classification_table"].upload(f"{REPORTS_DIR}/classification_
 champ_run.stop()
 
 # Overall metrics json
-metrics_out = {
-    "lakefs_metadata": {
-        "repository": lakefs_mgr.repository,
-        "branch": lakefs_mgr.branch,
-        "commit_id": lakefs_commit_id,
-        "features_lakefs_uri": lakefs_features_uri
-    },
-    "attendance_regression": {
-        "champion_model": champion_reg["Model"],
-        "test_mae": float(champion_reg["Test MAE"]),
-        "test_r2": float(champion_reg["Test R²"]),
-        "cv_r2": float(champion_reg["CV R² (Mean)"])
-    },
-    "booking_approval": {
-        "champion_model": champion_cls["Model"],
-        "test_roc_auc": float(champion_cls["ROC-AUC"]),
-        "test_f1": float(champion_cls["F1-Score"]),
-        "test_accuracy": float(champion_cls["Accuracy"])
-    }
+metrics_json_path = f"{REPORTS_DIR}/champion_metrics.json"
+try:
+    if os.path.exists(metrics_json_path):
+        with open(metrics_json_path, "r") as f:
+            metrics_out = json.load(f)
+    else:
+        metrics_out = {}
+except Exception:
+    metrics_out = {}
+
+metrics_out["lakefs_metadata"] = {
+    "repository": lakefs_mgr.repository,
+    "branch": lakefs_mgr.branch,
+    "commit_id": lakefs_commit_id,
+    "features_lakefs_uri": lakefs_features_uri
+}
+metrics_out["attendance_regression"] = {
+    "champion_model": champion_reg["Model"],
+    "test_mae": float(champion_reg["Test MAE"]),
+    "test_r2": float(champion_reg["Test R²"]),
+    "cv_r2": float(champion_reg["CV R² (Mean)"])
+}
+metrics_out["booking_approval"] = {
+    "champion_model": champion_cls["Model"],
+    "test_roc_auc": float(champion_cls["ROC-AUC"]),
+    "test_f1": float(champion_cls["F1-Score"]),
+    "test_accuracy": float(champion_cls["Accuracy"])
 }
 
-metrics_json_path = f"{REPORTS_DIR}/champion_metrics.json"
 with open(metrics_json_path, "w") as f:
     json.dump(metrics_out, f, indent=2)
 

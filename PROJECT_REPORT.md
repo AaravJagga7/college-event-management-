@@ -1,6 +1,8 @@
-# 🏛️ College Event Management System — End-to-End ML & MLOps Master Report
+# 🏛️ RVCE 8th Mile Management System — End-to-End ML & MLOps Master Report
 
 **Author:** Antigravity AI Engineering  
+**Institution:** RV College of Engineering (RVCE), Bengaluru  
+**Festival:** 8th Mile (Ashtrang / Kannada Habba)  
 **Repository:** `AaravJagga7/college-event-management-`  
 **Execution Environment:** Python 3.9, lakeFS-client 1.44, Neptune 1.14, Scikit-Learn 1.6  
 **Status:** Production-Ready & Version-Controlled (lakeFS + Neptune.ai)  
@@ -22,17 +24,19 @@
 
 ## 1. Executive Summary
 
-The **College Event Management System** resolves two critical operational inefficiencies in campus logistics:
-- **Challenge 1 (Turnout Uncertainty):** Event organizers struggle to estimate actual student turnout, resulting in either under-utilized massive auditoriums or hazardous overcrowding.
-- **Challenge 2 (Scheduling & Policy Violations):** Campus administrators spend dozens of manual hours reviewing room booking requests to detect room schedule clashes and room capacity limits.
+The **RVCE 8th Mile Festival Management System** resolves three critical operational challenges in campus festival logistics for RV College of Engineering:
+- **Challenge 1 (Turnout Uncertainty):** Event coordinators struggle to forecast student turnout across diverse venues—from 70-seater department classrooms up to the 1,500-capacity Main Stage.
+- **Challenge 2 (Room Scheduling Clashes & Overcrowding):** Festival committees spend extensive administrative hours manually vetting room bookings to detect spatio-temporal room conflicts and fire safety capacity limits.
+- **Challenge 3 (Budget Estimation Overruns):** Organizers require early budget estimation for audio-visual equipment, stage acoustics, artist honorarium, catering, and prize pools.
 
-To address these challenges, we built an end-to-end, automated machine learning pipeline with reproducible MLOps standards:
-- **Dual ML Modeling**: An Attendance Forecaster (Regression) and an Automated Approval Engine (Classification).
-- **Leak-Free Feature Engineering**: 19 raw transactional columns are filtered and engineered into **21 clean predictor features**, eliminating target leakage.
-- **Top-Tier Performance**:
-  - **Attendance Champion (Gradient Boosting)**: Test $R^2 = 0.558$, $\text{MAE} = 13.75$ students (Mean CV $R^2 = 0.560$).
-  - **Approval Champion (Random Forest)**: $\text{ROC-AUC} = 0.920$, $\text{Accuracy} = 95.00\%$, $\text{F1} = 0.972$.
-- **Full MLOps Stack**: Immutable data lake versioning via **lakeFS** with zero-copy branching and commit tracking, experiment tracking, hyperparameter logging and artifact governance via **Neptune.ai**, and production models tagged under `@champion`.
+To solve these challenges, we engineered an end-to-end ML & MLOps pipeline:
+- **Triple-Task ML Engine**: Student Attendance Forecasting (Regression), Automated Booking Approval (Classification), and Event Budget Forecasting (Regression).
+- **Faithfully Grounded RVCE Dataset (`rvce_8th_mile_data.csv`)**: 1,200 booking transactions based directly on real RVCE 8th Mile / Ashtrang festival schedules, real campus venues (Main Stage, IEM Audi, Civil Sem Hall, ECE Sem Hall, etc.), and official faculty coordinators.
+- **Top-Tier Production Benchmarks**:
+  - **Attendance Champion (Random Forest)**: Test $R^2 = 0.871$, $\text{MAE} = 71.91$ students.
+  - **Approval Champion (Random Forest)**: $\text{ROC-AUC} = 0.828$, $\text{Accuracy} = 86.25\%$, $\text{F1} = 0.915$.
+  - **Budget Champion (Gradient Boosting)**: Test $R^2 = 0.9992$, $\text{MAE} = ₹3,325.02$, $\text{MAPE} = 3.35\%$.
+- **Full MLOps Stack**: Immutable data lake versioning via **lakeFS**, experiment tracking and model governance via **Neptune.ai** and **MLflow Model Registry**, with production champion models tagged under `@champion`.
 
 ---
 
@@ -40,22 +44,17 @@ To address these challenges, we built an end-to-end, automated machine learning 
 
 ![Machine Learning System Architecture](ml_architecture.png)
 
-The workflow consists of four modular stages:
-1. **Data Ingestion & Version Control**: Raw records (`synthetic_event_data.csv`) tracked and versioned through **lakeFS** commits with zero-copy isolation.
-2. **Feature Extraction Engine (`eda_and_feature_extraction.py`)**: Transforms transactional dates, times, and organizers into a 21-feature structured feature store (`features_ready.csv`).
-3. **Dual Model Training & 5-Fold Stratified CV (`train_models_neptune.py`)**: Trains 4 distinct architectures per task with automated metric logging and lakeFS commit lineage tracking to **Neptune.ai**.
-4. **Registry & Production Delivery**: Automatically benchmarks all candidates, exports [champion_metrics.json](reports/champion_metrics.json), and registers `@champion` models into Neptune.ai with production tags.
-
 ---
 
 ## 3. Data Ingestion & Dataset Audit
 
-The raw dataset (`synthetic_event_data.csv`) comprises **1,200 historical event records** across **19 columns**:
+The primary dataset ([rvce_8th_mile_data.csv](file:///Users/aarav/event%20management/rvce_8th_mile_data.csv)) comprises **1,200 historical event booking records** across **21 columns**:
 
 ```
 Total Records: 1,200
-Target A (Registers): Mean = 49.80, Std = 27.24, Min = 10, Max = 120
-Target B (Accept/Reject): 88.7% Accepted (1,065), 11.3% Rejected (135) [Imbalanced]
+Target A (Registers): Mean = 313.40, Std = 397.01, Min = 15, Max = 1,976
+Target B (Accept/Reject): 81.7% Accepted (980), 18.3% Rejected (220)
+Target C (Budget): Mean = ₹1,59,667.83, Std = ₹138,420.12, Min = ₹23,600, Max = ₹6,11,300
 ```
 
 ### Complete Audit of All 19 Raw Columns

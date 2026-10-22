@@ -16,6 +16,7 @@ Tasks:
 
 import os
 import json
+import joblib
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -36,7 +37,7 @@ from sklearn.ensemble import (
 )
 from sklearn.model_selection import train_test_split, cross_val_score
 from sklearn.metrics import (
-    r2_score, mean_absolute_error, mean_squared_error,
+    r2_score, mean_absolute_error, mean_squared_error, mean_absolute_percentage_error,
     accuracy_score, precision_score, recall_score, f1_score, roc_auc_score,
     confusion_matrix, ConfusionMatrixDisplay
 )
@@ -48,7 +49,9 @@ DATA_PATH = "features_ready.csv"
 DB_PATH = "sqlite:///mlflow.db"
 EXPERIMENT_NAME = "college-event-models"
 REPORTS_DIR = "reports"
+MODELS_DIR = os.path.join(REPORTS_DIR, "models")
 os.makedirs(REPORTS_DIR, exist_ok=True)
+os.makedirs(MODELS_DIR, exist_ok=True)
 
 mlflow.set_tracking_uri(DB_PATH)
 mlflow.set_experiment(EXPERIMENT_NAME)
@@ -62,9 +65,10 @@ df = pd.read_csv(DATA_PATH)
 print(f"Loaded {df.shape[0]} rows, {df.shape[1]} features from {DATA_PATH}.")
 
 # Define feature sets strictly preventing data leakage
-LEAKY_COLS = ["TARGET_registers", "TARGET_accept", "fill_ratio"]
+LEAKY_COLS = ["TARGET_registers", "TARGET_accept", "fill_ratio", "TARGET_budget"]
 feature_cols_reg = [c for c in df.columns if c not in LEAKY_COLS]
-feature_cols_cls = [c for c in df.columns if c not in ["TARGET_registers", "TARGET_accept"]]
+feature_cols_cls = [c for c in df.columns if c not in ["TARGET_registers", "TARGET_accept", "TARGET_budget"]]
+feature_cols_bgt = [c for c in df.columns if c not in ["TARGET_budget", "TARGET_accept", "fill_ratio"]]
 
 # ------------------------------------------------------------------------------
 # 1. TASK A: ATTENDANCE REGRESSION (TARGET_registers)
@@ -298,16 +302,144 @@ for name, model in cls_models.items():
 cls_summary_df = pd.DataFrame(cls_metrics_list)
 
 # ------------------------------------------------------------------------------
-# 3. GENERATE COMPARISON CHARTS & LOG SUMMARY RUN TO MLFLOW
+# 3. TASK C: EVENT BUDGET FORECASTING (TARGET_budget - REGRESSION)
 # ------------------------------------------------------------------------------
 print("\n" + "=" * 70)
-print("📊 GENERATING COMPREHENSIVE COMPARISON CHARTS")
+print("🚀 TASK C: EVENT BUDGET ALLOCATION FORECASTING (REGRESSION)")
 print("=" * 70)
 
-# Regression Comparison Plot
-fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+X_bgt = df[feature_cols_bgt]
+y_bgt = df["TARGET_budget"]
+
+X_train_b, X_test_b, y_train_b, y_test_b = train_test_split(
+    X_bgt, y_bgt, test_size=0.20, random_state=42
+)
+
+# Define individual estimators for budget
+dt_bgt = DecisionTreeRegressor(max_depth=6, min_samples_leaf=5, random_state=42)
+rf_bgt = RandomForestRegressor(n_estimators=150, max_depth=8, min_samples_leaf=3, random_state=42, n_jobs=-1)
+gb_bgt = GradientBoostingRegressor(n_estimators=150, learning_rate=0.05, max_depth=4, random_state=42)
+
+# Define Voting Regressor for budget
+voting_bgt = VotingRegressor(
+    estimators=[
+        ("dt", dt_bgt),
+        ("rf", rf_bgt),
+        ("gb", gb_bgt)
+    ],
+    weights=[1, 2, 2]
+)
+
+bgt_models = {
+    "Decision Tree": dt_bgt,
+    "Random Forest": rf_bgt,
+    "Gradient Boosting": gb_bgt,
+    "Voting Regressor": voting_bgt
+}
+
+bgt_metrics_list = []
+trained_bgt_models = {}
+
+for name, model in bgt_models.items():
+    run_name = f"Budget_{name.replace(' ', '_')}"
+    with mlflow.start_run(run_name=run_name) as run:
+        # Cross validation
+        cv_scores = cross_val_score(model, X_train_b, y_train_b, cv=5, scoring="r2")
+        
+        # Fit and predict
+        model.fit(X_train_b, y_train_b)
+        y_pred_train = model.predict(X_train_b)
+        y_pred_test = model.predict(X_test_b)
+        
+        # Metrics
+        tr_r2 = r2_score(y_train_b, y_pred_train)
+        te_r2 = r2_score(y_test_b, y_pred_test)
+        te_mae = mean_absolute_error(y_test_b, y_pred_test)
+        te_rmse = np.sqrt(mean_squared_error(y_test_b, y_pred_test))
+        te_mape = mean_absolute_percentage_error(y_test_b, y_pred_test) * 100.0
+        cv_mean = float(cv_scores.mean())
+        cv_std = float(cv_scores.std())
+        
+        trained_bgt_models[name] = model
+        
+        # Log params & tags
+        mlflow.set_tag("task", "budget_regression")
+        mlflow.set_tag("target", "TARGET_budget")
+        mlflow.set_tag("model_type", name)
+        
+        if hasattr(model, "get_params"):
+            clean_params = {k: str(v) for k, v in model.get_params().items() if not k.startswith("estimators") and len(str(v)) < 250}
+            mlflow.log_params(clean_params)
+            
+        # Log metrics
+        metrics = {
+            "train_r2": tr_r2,
+            "test_r2": te_r2,
+            "test_mae": te_mae,
+            "test_rmse": te_rmse,
+            "test_mape": te_mape,
+            "cv_r2_mean": cv_mean,
+            "cv_r2_std": cv_std
+        }
+        mlflow.log_metrics(metrics)
+        
+        # Residual and prediction plot artifact
+        fig, ax = plt.subplots(1, 2, figsize=(11, 4))
+        ax[0].scatter(y_test_b, y_pred_test, alpha=0.6, color="#2ca02c", edgecolors="k", s=30)
+        ax[0].plot([y_test_b.min(), y_test_b.max()], [y_test_b.min(), y_test_b.max()], "r--", lw=2)
+        ax[0].set_title(f"{name}: Actual vs Predicted Budget")
+        ax[0].set_xlabel("Actual Budget (₹)")
+        ax[0].set_ylabel("Predicted Budget (₹)")
+        
+        residuals = y_test_b - y_pred_test
+        sns.histplot(residuals, kde=True, ax=ax[1], color="#1f77b4", bins=20)
+        ax[1].axvline(0, color="r", linestyle="--")
+        ax[1].set_title(f"{name}: Residual Error Distribution")
+        ax[1].set_xlabel("Error (₹)")
+        
+        plot_path = f"{REPORTS_DIR}/eval_reg_budget_{name.lower().replace(' ', '_')}.png"
+        fig.tight_layout()
+        fig.savefig(plot_path, dpi=120)
+        plt.close(fig)
+        mlflow.log_artifact(plot_path)
+        
+        # Log Model
+        signature = infer_signature(X_train_b, y_pred_train)
+        model_info = mlflow.sklearn.log_model(
+            sk_model=model,
+            artifact_path="model",
+            signature=signature,
+            input_example=X_train_b.head(2)
+        )
+        
+        bgt_metrics_list.append({
+            "Model": name,
+            "Run ID": run.info.run_id,
+            "Model URI": model_info.model_uri,
+            "Test R²": round(te_r2, 4),
+            "Test MAE": round(te_mae, 2),
+            "Test RMSE": round(te_rmse, 2),
+            "Test MAPE (%)": round(te_mape, 2),
+            "Train R²": round(tr_r2, 4),
+            "CV R² (Mean)": round(cv_mean, 4),
+            "CV R² (Std)": round(cv_std, 4)
+        })
+        
+        print(f"  • {name:20s} | Test R²: {te_r2:.4f} | Test MAE: ₹{te_mae:,.2f} | MAPE: {te_mape:.2f}% | 5-Fold CV R²: {cv_mean:.3f}")
+
+bgt_summary_df = pd.DataFrame(bgt_metrics_list)
+
+# ------------------------------------------------------------------------------
+# 4. GENERATE COMPARISON CHARTS & LOG SUMMARY RUN TO MLFLOW
+# ------------------------------------------------------------------------------
+print("\n" + "=" * 70)
+print("📊 GENERATING COMPREHENSIVE COMPARISON CHARTS FOR ALL 3 TASKS")
+print("=" * 70)
+
 palette = ["#4e79a7", "#f28e2c", "#e15759", "#76b7b2"]
 
+# Task A: Regression Comparison Plot
+fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 sns.barplot(x="Model", y="Test R²", data=reg_summary_df, ax=axes[0], palette=palette)
 axes[0].set_title("A. Test R² Comparison (Higher is Better)", fontweight="bold")
 axes[0].set_ylim(0, max(reg_summary_df["Test R²"]) * 1.25)
@@ -332,13 +464,13 @@ for p in axes[2].patches:
 for ax in axes:
     ax.tick_params(axis="x", rotation=15)
 
-plt.suptitle("Model Benchmark Comparison: Student Attendance Forecasting (Regression)", fontsize=14, fontweight="bold", y=1.02)
+plt.suptitle("Model Benchmark Comparison: Student Attendance Forecasting (Task A)", fontsize=14, fontweight="bold", y=1.02)
 fig.tight_layout()
 reg_plot_file = f"{REPORTS_DIR}/model_comparison_regression.png"
 fig.savefig(reg_plot_file, dpi=120, bbox_inches="tight")
 plt.close(fig)
 
-# Classification Comparison Plot
+# Task B: Classification Comparison Plot
 fig, axes = plt.subplots(1, 3, figsize=(16, 5))
 sns.barplot(x="Model", y="ROC-AUC", data=cls_summary_df, ax=axes[0], palette=palette)
 axes[0].set_title("A. Test ROC-AUC (Higher is Better)", fontweight="bold")
@@ -364,63 +496,126 @@ for p in axes[2].patches:
 for ax in axes:
     ax.tick_params(axis="x", rotation=15)
 
-plt.suptitle("Model Benchmark Comparison: Booking Approval (Classification)", fontsize=14, fontweight="bold", y=1.02)
+plt.suptitle("Model Benchmark Comparison: Booking Approval (Task B)", fontsize=14, fontweight="bold", y=1.02)
 fig.tight_layout()
 cls_plot_file = f"{REPORTS_DIR}/model_comparison_classification.png"
 fig.savefig(cls_plot_file, dpi=120, bbox_inches="tight")
 plt.close(fig)
 
-# Save Comparison CSVs & JSON
+# Task C: Budget Comparison Plot
+fig, axes = plt.subplots(1, 3, figsize=(16, 5))
+sns.barplot(x="Model", y="Test R²", data=bgt_summary_df, ax=axes[0], palette=palette)
+axes[0].set_title("A. Test R² (Higher is Better)", fontweight="bold")
+axes[0].set_ylim(0, 1.1)
+for p in axes[0].patches:
+    axes[0].annotate(f"{p.get_height():.3f}", (p.get_x() + p.get_width() / 2., p.get_height()),
+                     ha="center", va="bottom", xytext=(0, 4), textcoords="offset points", fontweight="bold")
+
+sns.barplot(x="Model", y="Test MAE", data=bgt_summary_df, ax=axes[1], palette=palette)
+axes[1].set_title("B. Test MAE in ₹ (Lower is Better)", fontweight="bold")
+axes[1].set_ylim(0, max(bgt_summary_df["Test MAE"]) * 1.25)
+for p in axes[1].patches:
+    axes[1].annotate(f"₹{p.get_height():,.0f}", (p.get_x() + p.get_width() / 2., p.get_height()),
+                     ha="center", va="bottom", xytext=(0, 4), textcoords="offset points", fontweight="bold")
+
+sns.barplot(x="Model", y="CV R² (Mean)", data=bgt_summary_df, ax=axes[2], palette=palette)
+axes[2].set_title("C. 5-Fold Cross-Validation R²", fontweight="bold")
+axes[2].set_ylim(0, 1.1)
+for p in axes[2].patches:
+    axes[2].annotate(f"{p.get_height():.3f}", (p.get_x() + p.get_width() / 2., p.get_height()),
+                     ha="center", va="bottom", xytext=(0, 4), textcoords="offset points", fontweight="bold")
+
+for ax in axes:
+    ax.tick_params(axis="x", rotation=15)
+
+plt.suptitle("Model Benchmark Comparison: Event Budget Forecasting (Task C)", fontsize=14, fontweight="bold", y=1.02)
+fig.tight_layout()
+bgt_plot_file = f"{REPORTS_DIR}/model_comparison_budget.png"
+fig.savefig(bgt_plot_file, dpi=120, bbox_inches="tight")
+plt.close(fig)
+
+# Save Comparison CSVs
 reg_summary_df.to_csv(f"{REPORTS_DIR}/regression_comparison.csv", index=False)
 cls_summary_df.to_csv(f"{REPORTS_DIR}/classification_comparison.csv", index=False)
+bgt_summary_df.to_csv(f"{REPORTS_DIR}/budget_comparison.csv", index=False)
 
 # ------------------------------------------------------------------------------
-# 4. REGISTER CHAMPION MODEL IN MLFLOW
+# 5. REGISTER CHAMPION MODELS IN MLFLOW MODEL REGISTRY
 # ------------------------------------------------------------------------------
-# Pick best regression champion (lowest MAE)
-champion_reg = reg_summary_df.sort_values(by="Test MAE").iloc[0]
-reg_model_name = "college-attendance-champion"
-
 print("\n" + "=" * 70)
 print("🏆 REGISTERING CHAMPION MODELS IN MLFLOW MODEL REGISTRY")
 print("=" * 70)
-print(f"Regression Champion: {champion_reg['Model']} (Test MAE: {champion_reg['Test MAE']}, Test R²: {champion_reg['Test R²']})")
 
+# 1. Regression Champion (lowest MAE)
+champion_reg = reg_summary_df.sort_values(by="Test MAE").iloc[0]
+reg_model_name = "college-attendance-champion"
+print(f"1. Attendance Champion: {champion_reg['Model']} (Test MAE: {champion_reg['Test MAE']}, Test R²: {champion_reg['Test R²']})")
 reg_mv = mlflow.register_model(model_uri=champion_reg["Model URI"], name=reg_model_name)
 client.set_registered_model_alias(name=reg_model_name, alias="champion", version=reg_mv.version)
-print(f"Registered '{reg_model_name}' version {reg_mv.version} with alias '@champion'")
 
-# Pick best classification champion (highest ROC-AUC)
+# 2. Classification Champion (highest ROC-AUC)
 champion_cls = cls_summary_df.sort_values(by="ROC-AUC", ascending=False).iloc[0]
 cls_model_name = "college-approval-champion"
-print(f"Classification Champion: {champion_cls['Model']} (Test ROC-AUC: {champion_cls['ROC-AUC']}, F1: {champion_cls['F1-Score']})")
-
+print(f"2. Approval Champion:   {champion_cls['Model']} (Test ROC-AUC: {champion_cls['ROC-AUC']}, F1: {champion_cls['F1-Score']})")
 cls_mv = mlflow.register_model(model_uri=champion_cls["Model URI"], name=cls_model_name)
 client.set_registered_model_alias(name=cls_model_name, alias="champion", version=cls_mv.version)
-print(f"Registered '{cls_model_name}' version {cls_mv.version} with alias '@champion'")
+
+# 3. Budget Champion (lowest MAE)
+champion_bgt = bgt_summary_df.sort_values(by="Test MAE").iloc[0]
+bgt_model_name = "college-budget-champion"
+print(f"3. Budget Champion:     {champion_bgt['Model']} (Test MAE: ₹{champion_bgt['Test MAE']:,.2f}, Test R²: {champion_bgt['Test R²']})")
+bgt_mv = mlflow.register_model(model_uri=champion_bgt["Model URI"], name=bgt_model_name)
+client.set_registered_model_alias(name=bgt_model_name, alias="champion", version=bgt_mv.version)
+
+# Serialize Champion Budget Model artifact (.joblib)
+champion_bgt_obj = trained_bgt_models[champion_bgt["Model"]]
+bgt_joblib_path = os.path.join(MODELS_DIR, "champion_budget_model.joblib")
+joblib.dump(champion_bgt_obj, bgt_joblib_path)
+print(f"💾 Serialized champion budget model to: {bgt_joblib_path}")
 
 # Overall metrics json
-metrics_out = {
-    "attendance_regression": {
-        "champion_model": champion_reg["Model"],
-        "test_mae": float(champion_reg["Test MAE"]),
-        "test_r2": float(champion_reg["Test R²"]),
-        "cv_r2": float(champion_reg["CV R² (Mean)"])
-    },
-    "booking_approval": {
-        "champion_model": champion_cls["Model"],
-        "test_roc_auc": float(champion_cls["ROC-AUC"]),
-        "test_f1": float(champion_cls["F1-Score"]),
-        "test_accuracy": float(champion_cls["Accuracy"])
-    }
+metrics_json_path = f"{REPORTS_DIR}/champion_metrics.json"
+try:
+    if os.path.exists(metrics_json_path):
+        with open(metrics_json_path, "r") as f:
+            metrics_out = json.load(f)
+    else:
+        metrics_out = {}
+except Exception:
+    metrics_out = {}
+
+metrics_out["attendance_regression"] = {
+    "champion_model": champion_reg["Model"],
+    "test_mae": float(champion_reg["Test MAE"]),
+    "test_r2": float(champion_reg["Test R²"]),
+    "cv_r2": float(champion_reg["CV R² (Mean)"])
 }
-with open(f"{REPORTS_DIR}/champion_metrics.json", "w") as f:
+metrics_out["booking_approval"] = {
+    "champion_model": champion_cls["Model"],
+    "test_roc_auc": float(champion_cls["ROC-AUC"]),
+    "test_f1": float(champion_cls["F1-Score"]),
+    "test_accuracy": float(champion_cls["Accuracy"])
+}
+metrics_out["budget_regression"] = {
+    "champion_model": champion_bgt["Model"],
+    "test_mae": float(champion_bgt["Test MAE"]),
+    "test_rmse": float(champion_bgt["Test RMSE"]),
+    "test_r2": float(champion_bgt["Test R²"]),
+    "test_mape": float(champion_bgt["Test MAPE (%)"]),
+    "cv_r2": float(champion_bgt["CV R² (Mean)"]),
+    "model_artifact": bgt_joblib_path
+}
+
+with open(metrics_json_path, "w") as f:
     json.dump(metrics_out, f, indent=2)
 
-print("\n🎉 Training, Comparison and MLflow Registration Completed Successfully!")
+print("\n🎉 Triple-Task Training, Comparison and MLflow Registration Completed Successfully!")
 print(f"Saved artifacts:")
 print(f"  • {reg_plot_file}")
 print(f"  • {cls_plot_file}")
-print(f"  • {REPORTS_DIR}/champion_metrics.json")
+print(f"  • {bgt_plot_file}")
+print(f"  • {REPORTS_DIR}/budget_comparison.csv")
+print(f"  • {bgt_joblib_path}")
+print(f"  • {metrics_json_path}")
 print("\nTo view the MLflow UI dashboard, run:")
 print("  mlflow ui --backend-store-uri sqlite:///mlflow.db")

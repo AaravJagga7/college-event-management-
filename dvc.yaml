@@ -3,7 +3,7 @@ stages:
     cmd: python3 eda_and_feature_extraction.py
     deps:
       - eda_and_feature_extraction.py
-      - synthetic_event_data.csv
+      - rvce_8th_mile_data.csv
       - params.yaml
     outs:
       - features_ready.csv
@@ -24,10 +24,14 @@ stages:
           cache: false
       - reports/classification_comparison.csv:
           cache: false
+      - reports/budget_comparison.csv:
+          cache: false
     plots:
       - reports/model_comparison_regression.png:
           cache: false
       - reports/model_comparison_classification.png:
+          cache: false
+      - reports/model_comparison_budget.png:
           cache: false
     metrics:
       - reports/champion_metrics.json:

@@ -1,7 +1,7 @@
 # 📊 Feature Extraction & Feature Engineering Report
-**Project:** College Event Management System  
+**Project:** RVCE 8th Mile Festival Management System  
 **Pipeline Script:** `eda_and_feature_extraction.py`  
-**Raw Source:** `synthetic_event_data.csv`  
+**Raw Source:** `rvce_8th_mile_data.csv` (RV College of Engineering - 8th Mile Festival)  
 **Processed Store:** `features_ready.csv`  
 
 ---
@@ -10,41 +10,44 @@
 
 | Metric | Count | Details |
 | :--- | :---: | :--- |
-| **Raw Columns in Source Data** | **19** | Original transactional dataset (`synthetic_event_data.csv`, 1,200 rows) |
-| **Raw Columns Dropped / Excluded** | **7** | Identifiers, constant variance, redundant strings, and target leakages |
-| **Raw Columns Directly Transformed** | **12** | Converted into numerical, ordinal, cyclical, or frequency representations |
-| **Total Engineered Features Created** | **21** | Model predictor features (excluding targets) |
-| **Total Columns in `features_ready.csv`** | **24** | 21 Base Features + 1 Interaction Metric (`fill_ratio`) + 2 Target Variables |
-| **Features Used in Task A (Regression)** | **21** | Predicts `TARGET_registers` strictly **without** target leakage |
-| **Features Used in Task B (Classification)** | **22** | Predicts `TARGET_accept` (21 Base Features + `fill_ratio`) |
+| **Raw Columns in Source Data** | **21** | RVCE 8th Mile transactional festival dataset (`rvce_8th_mile_data.csv`, 1,200 rows) |
+| **Raw Columns Dropped / Excluded** | **8** | Identifiers, constant variance, redundant strings, and target leakages |
+| **Raw Columns Directly Transformed** | **13** | Converted into numerical, ordinal, cyclical, frequency, or target representations |
+| **Total Engineered Features Created** | **21** | Model predictor features (excluding targets and fill_ratio) |
+| **Total Columns in `features_ready.csv`** | **25** | 21 Base Predictors + 1 Interaction Metric (`fill_ratio`) + 3 Targets (`TARGET_registers`, `TARGET_accept`, `TARGET_budget`) |
+| **Features Used in Task A (Attendance Regression)** | **21** | Predicts `TARGET_registers` strictly **without** target leakage |
+| **Features Used in Task B (Approval Classification)** | **22** | Predicts `TARGET_accept` (21 Base Features + `fill_ratio`) |
+| **Features Used in Task C (Budget Regression)** | **22** | Predicts `TARGET_budget` (21 Base Features + `TARGET_registers`) |
 
 ---
 
-## 🔍 Part 1: Audit of All 19 Raw Columns
+## 🔍 Part 1: Audit of All 21 Raw Columns
 
-Below is the complete analysis of every column present in `synthetic_event_data.csv` and the exact decision made for feature extraction:
+Below is the complete analysis of every column present in `rvce_8th_mile_data.csv` and the exact decision made for feature extraction:
 
 | # | Raw Column Name | Data Type | Unique Values | Status | Reason & Action Taken |
 | :-: | :--- | :---: | :---: | :---: | :--- |
 | **1** | `SNO` | `int64` | 1,200 | ❌ **Dropped** | Arbitrary sequential identifier; carries no predictive signal and induces overfitting. |
-| **2** | `Event` | `object` | 38 | ❌ **Dropped** | High-cardinality free-text event titles; abstracted into `Event_Category` and `type_level`. |
+| **2** | `Event` | `object` | 32 | ❌ **Dropped** | High-cardinality 8th Mile titles; abstracted into `Event_Category` and `type_level`. |
 | **3** | `Event_Category` | `object` | 5 | ✅ **Transformed** | Extracted into 5 binary one-hot features (`cat_academic`, `cat_cultural`, `cat_fun_club`, `cat_sports`, `cat_technical`). |
-| **4** | `Faculty_id` | `object` | 25 | ✅ **Transformed** | High cardinality; converted into continuous entity frequency metric: `faculty_event_count`. |
-| **5** | `Faculty_name` | `object` | 25 | ❌ **Dropped** | 100% collinear / redundant with `Faculty_id`. |
+| **4** | `Faculty_id` | `object` | 20 | ✅ **Transformed** | High cardinality; converted into continuous entity frequency metric: `faculty_event_count`. |
+| **5** | `Faculty_name` | `object` | 20 | ❌ **Dropped** | 100% collinear / redundant with `Faculty_id`. |
 | **6** | `Faculty_Designation` | `object` | 3 | ✅ **Transformed** | Ordinal hierarchy preserved into integer scale: `designation_level` (Asst: 1, Assoc: 2, Prof: 3). |
-| **7** | `Registers` | `int64` | 135 | 🎯 **Target A** | Kept as regression target `TARGET_registers`. Also used to derive `fill_ratio`. |
+| **7** | `Registers` | `int64` | 380 | 🎯 **Target A** | Kept as regression target `TARGET_registers`. Also used to derive `fill_ratio`. |
 | **8** | `Type` | `object` | 3 | ✅ **Transformed** | Event importance hierarchy encoded into ordinal scale: `type_level` (Normal: 1, Important: 2, Very Important: 3). |
 | **9** | `Request for Booking` | `int64` | 1 | ❌ **Dropped** | Zero-variance constant (all values = 1); zero information gain. |
-| **10** | `Request for Cancelling` | `int64` | 2 | ❌ **Dropped** | Uninformative post-hoc cancellation flag; not available at initial scheduling decision. |
-| **11** | `Requested Room No` | `int64` | 9 | ✅ **Transformed** | Kept as `room_no` and used to derive `room_usage_count` and `earlier_clash_count`. |
-| **12** | `Room_Capacity` | `int64` | 7 | ✅ **Transformed** | Retained as `room_capacity`; combined with attendance to derive `fill_ratio`. |
-| **13** | `Request Date` | `object` | 564 | ✅ **Transformed** | Parsed into datetime; decomposed into `month`, `day_of_week`, `is_saturday`, `week_of_year`, and `is_exam_season`. |
-| **14** | `Request Submitted On` | `object` | 677 | ✅ **Transformed** | Compared against `Request Date` to calculate scheduling promotion window: `lead_days`. |
-| **15** | `Requested Time` | `object` | 8 | ✅ **Transformed** | Parsed to extract 24-hour integer `hour` and binary `is_afternoon` ($\ge$ 14:00). |
-| **16** | `Duration` | `object` | 4 | ✅ **Transformed** | Stripped "min" string suffix and cast to integer `duration_min` (e.g. 60, 90, 120, 180). |
-| **17** | `Room Available/Not Available` | `object` | 2 | ❌ **Dropped** | Target leakage; directly mirrors `Accept/Reject` outcome. |
-| **18** | `Accept/Reject` | `object` | 2 | 🎯 **Target B** | Binarized to $\{0, 1\}$ as classification target `TARGET_accept` (Accept = 1, Reject = 0). |
-| **19** | `Reject_Reason` | `object` | 3 | ❌ **Dropped** | Target leakage; generated strictly *after* a rejection occurs, never known a priori. |
+| **10** | `Request for Cancelling` | `int64` | 1 | ❌ **Dropped** | Zero-variance constant (all values = 0). |
+| **11** | `Requested Room No` | `int64` | 16 | ✅ **Transformed** | Kept as `room_no` and used to derive `room_usage_count` and `earlier_clash_count`. |
+| **12** | `Requested Venue` | `object` | 16 | ❌ **Dropped** | Descriptive name (e.g. Main Stage, IEM Audi); uniquely mapped to `room_no`. |
+| **13** | `Room_Capacity` | `int64` | 10 | ✅ **Transformed** | Retained as `room_capacity`; combined with attendance to derive `fill_ratio`. |
+| **14** | `Request Date` | `object` | 112 | ✅ **Transformed** | Parsed into datetime; decomposed into `month`, `day_of_week`, `is_saturday`, `week_of_year`, and `is_exam_season`. |
+| **15** | `Request Submitted On` | `object` | 118 | ✅ **Transformed** | Compared against `Request Date` to calculate scheduling promotion window: `lead_days`. |
+| **16** | `Requested Time` | `object` | 12 | ✅ **Transformed** | Parsed to extract 24-hour integer `hour` and binary `is_afternoon` ($\ge$ 14:00). |
+| **17** | `Duration` | `object` | 5 | ✅ **Transformed** | Stripped "min" string suffix and cast to integer `duration_min` (60–240 min). |
+| **18** | `Room Available/Not Available` | `object` | 2 | ❌ **Dropped** | Target leakage; directly mirrors `Accept/Reject` outcome. |
+| **19** | `Accept/Reject` | `object` | 2 | 🎯 **Target B** | Binarized to $\{0, 1\}$ as classification target `TARGET_accept` (Accept = 1, Reject = 0). |
+| **20** | `Reject_Reason` | `object` | 4 | ❌ **Dropped** | Target leakage; generated strictly *after* a rejection occurs, never known a priori. |
+| **21** | `Budget` | `int64` | 740 | 🎯 **Target C** | Kept as regression target `TARGET_budget` (INR ₹). |
 
 ---
 

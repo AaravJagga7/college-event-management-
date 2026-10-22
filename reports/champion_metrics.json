@@ -1,20 +1,29 @@
 {
-  "lakefs_metadata": {
-    "repository": "college-event-data",
-    "branch": "main",
-    "commit_id": "89938529e991f40ec64880d1dc717b5ffcea01af97ba090665afc495265fd232",
-    "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
-  },
   "attendance_regression": {
-    "champion_model": "Gradient Boosting",
-    "test_mae": 13.75,
-    "test_r2": 0.558,
-    "cv_r2": 0.56
+    "champion_model": "Random Forest",
+    "test_mae": 71.91,
+    "test_r2": 0.871,
+    "cv_r2": 0.876
   },
   "booking_approval": {
     "champion_model": "Random Forest",
-    "test_roc_auc": 0.92,
-    "test_f1": 0.972,
-    "test_accuracy": 0.95
+    "test_roc_auc": 0.828,
+    "test_f1": 0.915,
+    "test_accuracy": 0.863
+  },
+  "budget_regression": {
+    "champion_model": "Gradient Boosting",
+    "test_mae": 3325.02,
+    "test_rmse": 4488.22,
+    "test_r2": 0.9992,
+    "test_mape": 3.35,
+    "cv_r2": 0.999,
+    "model_artifact": "reports/models/champion_budget_model.joblib"
+  },
+  "lakefs_metadata": {
+    "repository": "college-event-data",
+    "branch": "main",
+    "commit_id": "c_74c9896903",
+    "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
   }
 }

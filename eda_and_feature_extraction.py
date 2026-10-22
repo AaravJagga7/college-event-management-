@@ -2,11 +2,12 @@
 ================================================================================
 College Event Management System: EDA & Feature Extraction Pipeline
 ================================================================================
-Inputs:  synthetic_event_data.csv
-Outputs: features_ready.csv, eda_visualization.png, feature_importance.png
-================================================================================
+# Inputs:  rvce_8th_mile_data.csv
+# Outputs: features_ready.csv, eda_visualization.png, feature_importance.png
+# ================================================================================
 """
 
+import os
 import numpy as np
 import pandas as pd
 import matplotlib
@@ -23,8 +24,9 @@ from sklearn.metrics import (
 # ------------------------------------------------------------------------------
 # 1. LOAD RAW DATA
 # ------------------------------------------------------------------------------
-print(">>> [1/5] Loading raw data: synthetic_event_data.csv...")
-df_raw = pd.read_csv("synthetic_event_data.csv")
+RAW_DATA_PATH = "rvce_8th_mile_data.csv"
+print(f">>> [1/5] Loading raw data: {RAW_DATA_PATH} (RV College of Engineering - 8th Mile Festival)...")
+df_raw = pd.read_csv(RAW_DATA_PATH)
 print(f"Loaded {df_raw.shape[0]} rows, {df_raw.shape[1]} columns.\n")
 
 # ------------------------------------------------------------------------------
@@ -54,46 +56,46 @@ df_temp["Month"] = df_temp["Date"].dt.month
 df_temp["Lead_Days"] = (df_temp["Date"] - df_temp["Submitted"]).dt.days
 
 sns.set_theme(style="whitegrid", palette="muted")
-fig, axes = plt.subplots(2, 3, figsize=(18, 10))
+fig, axes = plt.subplots(2, 3, figsize=(19, 10))
 plt.subplots_adjust(hspace=0.35, wspace=0.25)
 
 # 1. Distribution of Registers
 sns.histplot(df_temp["Registers"], bins=30, kde=True, ax=axes[0, 0], color="#2b5c8f")
-axes[0, 0].set_title("1. Distribution of Student Registrations (Target)", fontweight="bold")
+axes[0, 0].set_title("1. Turnout Distribution (RVCE 8th Mile)", fontweight="bold")
 axes[0, 0].axvline(df_temp["Registers"].median(), color="red", linestyle="--", label=f"Median: {df_temp['Registers'].median():.0f}")
 axes[0, 0].legend()
 
 # 2. Registers by Event Type
-sns.boxplot(x="Type", y="Registers", data=df_temp, order=["Normal", "Important", "Very important"], ax=axes[0, 1], palette="Blues_r")
-axes[0, 1].set_title("2. Turnout by Event Priority Level", fontweight="bold")
+sns.boxplot(x="Type", y="Registers", data=df_temp, order=["Normal", "Important", "Very important"], ax=axes[0, 1], palette="Blues_r", hue="Type", legend=False)
+axes[0, 1].set_title("2. Turnout by Priority Level", fontweight="bold")
 
 # 3. Registers across Event Categories
-sns.barplot(x="Event_Category", y="Registers", data=df_temp, ax=axes[0, 2], palette="viridis", ci=None)
+sns.barplot(x="Event_Category", y="Registers", data=df_temp, ax=axes[0, 2], palette="viridis", errorbar=None, hue="Event_Category", legend=False)
 axes[0, 2].set_title("3. Mean Registrations across Categories", fontweight="bold")
 axes[0, 2].tick_params(axis="x", rotation=20)
 
-# 4. Monthly Seasonality (Exam season dips)
+# 4. Monthly Seasonality
 monthly = df_temp.groupby("Month")["Registers"].mean().reset_index()
 sns.lineplot(x="Month", y="Registers", data=monthly, marker="o", color="#d95f02", linewidth=2.5, ax=axes[1, 0])
-axes[1, 0].set_title("4. Attendance Seasonality (Exam Dips in Months 4, 5, 11, 12)", fontweight="bold")
-axes[1, 0].set_xticks(range(1, 13))
-axes[1, 0].axvspan(3.5, 5.5, color="orange", alpha=0.15, label="Spring Exams")
-axes[1, 0].axvspan(10.5, 12.5, color="orange", alpha=0.15, label="Fall Exams")
-axes[1, 0].legend(loc="lower left")
+axes[1, 0].set_title("4. Attendance Seasonality (Sept - Dec Fest Cycle)", fontweight="bold")
+axes[1, 0].set_xticks([9, 10, 11, 12])
+axes[1, 0].set_xticklabels(["Sep", "Oct", "Nov", "Dec"])
 
-# 5. Rejection Rate by Room
+# 5. Rejection Rate by Venue
+venue_col = "Requested Venue" if "Requested Venue" in df_temp.columns else "Requested Room No"
 rej_by_room = df_temp.assign(rej=(df_temp["Accept/Reject"] == "Reject").astype(int))\
-                     .groupby("Requested Room No")["rej"].mean().mul(100).reset_index()
-sns.barplot(x="Requested Room No", y="rej", data=rej_by_room, ax=axes[1, 1], palette="magma")
-axes[1, 1].set_title("5. Rejection Rate (%) by Room Number", fontweight="bold")
-axes[1, 1].tick_params(axis="x", rotation=45)
+                     .groupby(venue_col)["rej"].mean().mul(100).reset_index()
+sns.barplot(x=venue_col, y="rej", data=rej_by_room, ax=axes[1, 1], palette="magma", hue=venue_col, legend=False)
+axes[1, 1].set_title(f"5. Rejection Rate (%) by Venue", fontweight="bold")
+axes[1, 1].tick_params(axis="x", rotation=45, labelsize=8)
 
 # 6. Rejection Reasons Pie Chart
 rej_counts = df_raw["Reject_Reason"].dropna().value_counts()
-axes[1, 2].pie(rej_counts, labels=rej_counts.index, autopct="%1.1f%%", colors=["#e41a1c", "#377eb8", "#4daf4a"], startangle=140)
+if len(rej_counts) > 0:
+    axes[1, 2].pie(rej_counts, labels=rej_counts.index, autopct="%1.1f%%", colors=["#e41a1c", "#377eb8", "#4daf4a"], startangle=140)
 axes[1, 2].set_title("6. Primary Causes for Booking Rejections", fontweight="bold")
 
-plt.suptitle("Exploratory Data Analysis: College Event Management System", fontsize=15, fontweight="bold", y=0.98)
+plt.suptitle("Exploratory Data Analysis: RV College of Engineering — 8th Mile Festival", fontsize=15, fontweight="bold", y=0.98)
 plt.savefig("eda_visualization.png", dpi=120, bbox_inches="tight")
 plt.close()
 print("Saved visualization: eda_visualization.png\n")
@@ -164,6 +166,8 @@ def extract_features(raw: pd.DataFrame) -> pd.DataFrame:
     fe["TARGET_registers"] = df["Registers"]
     fe["TARGET_accept"] = (df["Accept/Reject"] == "Accept").astype(int)
     fe["fill_ratio"] = df["Registers"] / df["Room_Capacity"]
+    if "Budget" in df.columns:
+        fe["TARGET_budget"] = df["Budget"]
     
     return fe
 
@@ -178,7 +182,8 @@ print("Saved: features_ready.csv\n")
 print(">>> [4/5] Training Random Forest Models for Feature Importance...")
 
 # Task A: Predict Registers (Attendance Regression) - NO TARGET LEAKAGE
-X_reg = features_df.drop(columns=["TARGET_registers", "TARGET_accept", "fill_ratio"])
+drop_reg = [c for c in ["TARGET_registers", "TARGET_accept", "fill_ratio", "TARGET_budget"] if c in features_df.columns]
+X_reg = features_df.drop(columns=drop_reg)
 y_reg = features_df["TARGET_registers"]
 
 X_train_r, X_test_r, y_train_r, y_test_r = train_test_split(X_reg, y_reg, test_size=0.2, random_state=42)
@@ -186,12 +191,13 @@ rf_reg = RandomForestRegressor(n_estimators=100, random_state=42)
 rf_reg.fit(X_train_r, y_train_r)
 
 y_pred_r = rf_reg.predict(X_test_r)
-r2 = r2_score(y_test_r, y_pred_r)
-mae = mean_absolute_error(y_test_r, y_pred_r)
-print(f"Task A (Attendance Regression): R² = {r2:.3f}, MAE = {mae:.2f}")
+r2_a = r2_score(y_test_r, y_pred_r)
+mae_a = mean_absolute_error(y_test_r, y_pred_r)
+print(f"Task A (Attendance Regression): R² = {r2_a:.3f}, MAE = {mae_a:.2f}")
 
 # Task B: Predict Approval (Classification)
-X_cls = features_df.drop(columns=["TARGET_registers", "TARGET_accept"])
+drop_cls = [c for c in ["TARGET_registers", "TARGET_accept", "TARGET_budget"] if c in features_df.columns]
+X_cls = features_df.drop(columns=drop_cls)
 y_cls = features_df["TARGET_accept"]
 
 X_train_c, X_test_c, y_train_c, y_test_c = train_test_split(X_cls, y_cls, test_size=0.2, random_state=42, stratify=y_cls)
@@ -212,32 +218,50 @@ accuracy = (tp + tn) / len(y_test_c)
 print(f"Task B (Approval Classification): ROC-AUC = {roc_auc:.3f}, Accuracy = {accuracy:.3f}")
 print(f"Confusion Matrix -> TP: {tp}, TN: {tn}, FP: {fp}, FN: {fn}")
 print(f"Sensitivity (Recall): {sensitivity:.3f} | Specificity: {specificity:.3f}")
-print("\nDetailed Classification Report:")
-print(classification_report(y_test_c, y_pred_c, target_names=["Reject (0)", "Accept (1)"]))
 
-# Plot Feature Importances + Confusion Matrix (3-panel)
-fig, axes = plt.subplots(1, 3, figsize=(20, 6))
+# Task C: Predict Budget (Event Budget Regression)
+if "TARGET_budget" in features_df.columns:
+    drop_bgt = [c for c in ["TARGET_budget", "TARGET_accept", "fill_ratio"] if c in features_df.columns]
+    X_bgt = features_df.drop(columns=drop_bgt)
+    y_bgt = features_df["TARGET_budget"]
+    
+    X_train_b, X_test_b, y_train_b, y_test_b = train_test_split(X_bgt, y_bgt, test_size=0.2, random_state=42)
+    rf_bgt = RandomForestRegressor(n_estimators=100, random_state=42)
+    rf_bgt.fit(X_train_b, y_train_b)
+    
+    y_pred_b = rf_bgt.predict(X_test_b)
+    r2_b = r2_score(y_test_b, y_pred_b)
+    mae_b = mean_absolute_error(y_test_b, y_pred_b)
+    print(f"Task C (Budget Regression):     R² = {r2_b:.3f}, MAE = ₹{mae_b:.2f}")
+
+# Plot Feature Importances + Confusion Matrix (4-panel)
+fig, axes = plt.subplots(1, 4, figsize=(24, 5.5))
 
 pd.Series(rf_reg.feature_importances_, index=X_reg.columns).sort_values().tail(10).plot(kind="barh", ax=axes[0], color="#2b5c8f")
-axes[0].set_title("Top 10 Drivers: Attendance (Regression)", fontweight="bold")
+axes[0].set_title("Top 10 Drivers: Attendance (Task A)", fontweight="bold")
 axes[0].set_xlabel("Feature Importance (Gini)")
 
 pd.Series(rf_cls.feature_importances_, index=X_cls.columns).sort_values().tail(10).plot(kind="barh", ax=axes[1], color="#e41a1c")
-axes[1].set_title("Top 10 Drivers: Booking Approval", fontweight="bold")
+axes[1].set_title("Top 10 Drivers: Approval (Task B)", fontweight="bold")
 axes[1].set_xlabel("Feature Importance (Gini)")
 
+if "TARGET_budget" in features_df.columns:
+    pd.Series(rf_bgt.feature_importances_, index=X_bgt.columns).sort_values().tail(10).plot(kind="barh", ax=axes[2], color="#2ca02c")
+    axes[2].set_title("Top 10 Drivers: Budget (Task C)", fontweight="bold")
+    axes[2].set_xlabel("Feature Importance (Gini)")
+
 # Confusion Matrix Heatmap
-sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=axes[2],
+sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", ax=axes[3],
             xticklabels=["Reject (0)", "Accept (1)"], yticklabels=["Reject (0)", "Accept (1)"],
             cbar=False, annot_kws={"size": 14, "weight": "bold"})
-axes[2].set_title(f"Baseline Confusion Matrix\n(Sensitivity: {sensitivity:.1%}, Specificity: {specificity:.1%})", fontweight="bold")
-axes[2].set_xlabel("Predicted Label")
-axes[2].set_ylabel("True Label")
+axes[3].set_title(f"Approval Confusion Matrix\n(Sens: {sensitivity:.1%}, Spec: {specificity:.1%})", fontweight="bold")
+axes[3].set_xlabel("Predicted Label")
+axes[3].set_ylabel("True Label")
 
 plt.tight_layout()
 plt.savefig("feature_importance.png", dpi=120, bbox_inches="tight")
 plt.close()
-print("Saved: feature_importance.png (with Confusion Matrix)\n")
+print("Saved: feature_importance.png (with Task A, B, C Importances & Confusion Matrix)\n")
 
 # ------------------------------------------------------------------------------
 # 5. SUMMARY

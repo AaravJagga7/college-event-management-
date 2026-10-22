@@ -5,62 +5,70 @@ stages:
     deps:
     - path: eda_and_feature_extraction.py
       hash: md5
-      md5: 76c68571878221d3f635987ca81a3b64
-      size: 11918
+      md5: c33b963764ce9249f0c2d97404894556
+      size: 13198
     - path: params.yaml
       hash: md5
       md5: dbf070154ba0f926ecb009e934b66ee7
       size: 204
-    - path: synthetic_event_data.csv
+    - path: rvce_8th_mile_data.csv
       hash: md5
-      md5: e0589309321d427ed7154698eb949f89
-      size: 178048
+      md5: 8dda911da4d3f94c1c9bfdfe35460e05
+      size: 224498
     outs:
     - path: eda_visualization.png
       hash: md5
-      md5: db388cd23a2ea2629cd13c68198bc66b
-      size: 199115
+      md5: 8f94c342ed7faa58f243089bec26eb35
+      size: 203702
     - path: feature_importance.png
       hash: md5
-      md5: 29abd5079cbba51c7aac8a5a3634cea4
-      size: 86142
+      md5: 31c5da826de16a1399b29db5e69b37cb
+      size: 98604
     - path: features_ready.csv
       hash: md5
-      md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
-      size: 80860
+      md5: 70a02e25f38d46c604479038a101c5b5
+      size: 94712
   train_and_compare:
     cmd: python3 train_models_mlflow.py
     deps:
     - path: features_ready.csv
       hash: md5
-      md5: 3a4d86eacafa0d3a5d31c2ac8a20891d
-      size: 80860
+      md5: 70a02e25f38d46c604479038a101c5b5
+      size: 94712
     - path: params.yaml
       hash: md5
       md5: dbf070154ba0f926ecb009e934b66ee7
       size: 204
     - path: train_models_mlflow.py
       hash: md5
-      md5: 3b3ad4b56ffc0751b9c2c7802c752952
-      size: 17440
+      md5: 348b919afcd9253856fd55545a05a72f
+      size: 25612
     outs:
+    - path: reports/budget_comparison.csv
+      hash: md5
+      md5: 3940a2e982033a2cf59710bbc63dae7d
+      size: 660
     - path: reports/champion_metrics.json
       hash: md5
-      md5: 1495dac6ab15ae5ea7b54a0b14e6ff16
-      size: 284
+      md5: 80eabbc71dbc4579cbdf38e42ab5cc71
+      size: 541
     - path: reports/classification_comparison.csv
       hash: md5
-      md5: ee01be711a040751afd9bfd049e45542
-      size: 587
+      md5: 2434536eb1116ce9dcb3170fc2ac4a34
+      size: 588
+    - path: reports/model_comparison_budget.png
+      hash: md5
+      md5: d663381428b87574913932b32f4bed4a
+      size: 70743
     - path: reports/model_comparison_classification.png
       hash: md5
-      md5: 313f393273c2abd03edca46c26f006d0
-      size: 63429
+      md5: 9361609b54848b05524bea0f01cdcec0
+      size: 63492
     - path: reports/model_comparison_regression.png
       hash: md5
-      md5: 642a992968a3a635163afd84bc44bb13
-      size: 76014
+      md5: df6e06063bd39ea4d11fc90ce8a01dd4
+      size: 69532
     - path: reports/regression_comparison.csv
       hash: md5
-      md5: 88d5b005f7a7367278be563cb1b5a683
-      size: 596
+      md5: e0315013bdc7a246cdec333ce8185ff8
+      size: 600

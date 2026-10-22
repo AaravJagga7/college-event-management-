@@ -1,5 +1,5 @@
-Model,Neptune Run ID,CV R² (Mean),CV R² (Std),Test R²,Test MAE,Test RMSE,Train R²
-Decision Tree,offline_decision_tree,0.376,0.066,0.366,17.18,22.86,0.626
-Random Forest,offline_random_forest,0.511,0.022,0.505,15.0,20.19,0.794
-Gradient Boosting,offline_gradient_boosting,0.56,0.024,0.558,13.75,19.08,0.808
-Voting Regressor,offline_voting_regressor,0.539,0.023,0.526,14.63,19.76,0.79
+Model,Run ID,Model URI,CV R² (Mean),CV R² (Std),Test R²,Test MAE,Test RMSE,Train R²
+Decision Tree,322a77b670664d0181dfca5cd2b022d1,models:/m-77c8e49f762240f29697bdd02c0de101,0.837,0.034,0.842,80.59,158.8,0.906
+Random Forest,b9ece0a3109f4e2d8d23db65e5ca4874,models:/m-1208a67f1be24f86981fb7b4aa228653,0.876,0.017,0.871,71.91,143.38,0.947
+Gradient Boosting,762d728c8c9a4308b96c4ac73e6374f1,models:/m-8ff5b51a24594f8995cc9dbce747c105,0.853,0.027,0.85,77.41,154.52,0.952
+Voting Regressor,239068c8c3304007aa15767e391d663c,models:/m-1ec841c571844f6ab1e4578d01f103ed,0.868,0.021,0.86,74.83,149.41,0.944

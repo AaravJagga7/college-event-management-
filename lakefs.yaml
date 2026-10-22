@@ -20,17 +20,17 @@ branches:
 
 datasets:
   raw:
-    local_path: "synthetic_event_data.csv"
-    lakefs_path: "raw/synthetic_event_data.csv"
-    description: "Raw historical booking logs, faculty records, and student registrations."
+    local_path: "rvce_8th_mile_data.csv"
+    lakefs_path: "raw/rvce_8th_mile_data.csv"
+    description: "RVCE 8th Mile Festival booking logs, faculty records, student registrations, and event budget allocation."
   features:
     local_path: "features_ready.csv"
     lakefs_path: "processed/features_ready.csv"
-    description: "Engineered feature dataset containing 21 spatio-temporal features."
+    description: "Engineered feature dataset containing 25 spatio-temporal features."
 
 lakectl_commands:
   init_repo: "lakectl repo create lakefs://college-event-data s3://college-event-bucket/lakefs"
-  upload_raw: "lakectl fs upload -s synthetic_event_data.csv lakefs://college-event-data/main/raw/synthetic_event_data.csv"
+  upload_raw: "lakectl fs upload -s rvce_8th_mile_data.csv lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
   upload_features: "lakectl fs upload -s features_ready.csv lakefs://college-event-data/main/processed/features_ready.csv"
   commit: "lakectl commit lakefs://college-event-data/main -m 'Ingest raw data and features'"
   create_branch: "lakectl branch create lakefs://college-event-data/experiments --source lakefs://college-event-data/main"

@@ -1,6 +1,6 @@
-# 🏛️ College Event Management System — Machine Learning Pipeline & MLOps
+# 🏛️ RVCE 8th Mile Management System — Machine Learning Pipeline & MLOps
 
-An end-to-end, reproducible Machine Learning and MLOps system for intelligent campus event scheduling, venue allocation, and capacity optimization.
+An end-to-end, reproducible Machine Learning and MLOps system for intelligent campus event scheduling, venue allocation, capacity optimization, and budget forecasting for **RV College of Engineering (RVCE)**'s flagship annual festival: **8th Mile (Ashtrang / Kannada Habba)**.
 
 ---
 
@@ -8,9 +8,10 @@ An end-to-end, reproducible Machine Learning and MLOps system for intelligent ca
 
 ![Machine Learning System Architecture](ml_architecture.png)
 
-The system is architected as an automated dual-task prediction and decision-support engine:
-1. **Student Attendance Forecasting (`TARGET_registers` — Regression)**: Predicts expected turnout prior to an event to prevent auditorium shortages, avoid overcrowding, and optimize room allocation without target leakage.
+The system is architected as an automated triple-task prediction and decision-support engine:
+1. **Student Attendance Forecasting (`TARGET_registers` — Regression)**: Predicts expected turnout prior to an event across venues (from IEM Auditorium to the Main Stage) to prevent overcrowding and optimize room allocation without target leakage.
 2. **Event Booking Approval Decision (`TARGET_accept` — Classification)**: Automated decision engine evaluating room capacity violations (`fill_ratio > 1.0`) and spatio-temporal room scheduling conflicts (`earlier_clash_count`) to recommend approval or rejection.
+3. **Event Financial Budget Allocation (`TARGET_budget` — Regression)**: Forecasts expected event operational and logistic budgets in INR (₹) across sound, stage, honorarium, equipment, and hospitality to prevent budget overruns.
 
 ---
 
@@ -25,11 +26,15 @@ college-event-management/
 ├── config.yaml                        # Centralized hyperparameter & pipeline configuration
 ├── lakefs.yaml                        # lakeFS repository & branch configuration
 ├── lakefs_versioning.py               # lakeFS data lake client, branch & commit manager
-├── synthetic_event_data.csv           # Raw transactional event booking records (1,200 rows)
-├── features_ready.csv                 # Engineered feature store (21 features)
+├── rvce_8th_mile_data.csv             # RVCE 8th Mile Festival booking records (1,200 rows)
+├── synthetic_event_data.csv           # Mirrored transactional event dataset
+├── features_ready.csv                 # Engineered feature store (25 features)
 │
+├── generate_rvce_data.py              # Generator grounded in real RVCE 8th Mile Timetables
 ├── eda_and_feature_extraction.py      # Exploratory data analysis & feature engineering engine
-├── train_models_neptune.py            # Model training, 5-fold CV, metrics & Neptune.ai experiment tracking
+├── train_budget_model.py              # Task C: Budget prediction benchmarking, MLflow & Neptune logging
+├── train_models_neptune.py            # Neptune.ai experiment tracking pipeline
+├── train_models_mlflow.py             # MLflow model registry & comparison pipeline
 ├── calculate_scores.py                # Standalone evaluation & champion metric exporter
 │
 ├── .lakefs/                           # lakeFS local commit ledger & repository state
@@ -38,14 +43,16 @@ college-event-management/
 └── reports/                           # Evaluation plots, confusion matrices & benchmark reports
     ├── champion_metrics.json          # Production champion model parameters & scores
     ├── detailed_classification_metrics.csv
+    ├── budget_comparison.csv          # Task C 4-model evaluation table
     ├── classification_comparison.csv
     ├── regression_comparison.csv
     ├── models/                        # Serialized .joblib champion model artifacts
-    ├── cm_cls_random_forest.png
-    ├── cm_cls_gradient_boosting.png
-    ├── eval_reg_gradient_boosting.png
-    ├── model_comparison_regression.png
-    └── model_comparison_classification.png
+    │   └── champion_budget_model.joblib
+    ├── model_comparison_budget.png
+    ├── eval_reg_budget.png
+    ├── budget_feature_importance.png
+    ├── feature_importance.png
+    └── eda_visualization.png
 ```
 
 ---
@@ -126,21 +133,45 @@ All models were evaluated using an 80/20 stratified train/test split along with 
 
 ---
 
+### 💰 Task C: Event Budget Allocation Forecasting (`TARGET_budget` — Regression)
+
+*Objective: Accurately estimate required financial budget (INR ₹) for event equipment, stage acoustics, catering, guest honorarium, and prizes across RVCE 8th Mile events ($N_{\text{test}} = 240$; Range: ₹23,600 to ₹611,300).*
+
+| Rank | Model Family | Test $R^2$ | Test MAE (₹) | Test RMSE (₹) | Test MAPE (%) | 5-Fold CV $R^2$ (Mean $\pm$ Std) | Status |
+| :---: | :--- | :---: | :---: | :---: | :---: | :---: | :---: |
+| 🥇 | **Gradient Boosting** | **0.9992** | **₹3,325.02** | **₹4,488.22** | **3.35%** | **0.999 $\pm$ 0.000** | 🏆 **Champion Model** |
+| 🥈 | **Voting Regressor** | 0.9987 | ₹4,072.96 | ₹5,494.52 | 3.89% | 0.998 $\pm$ 0.000 | Runner-Up |
+| 🥉 | **Random Forest** | 0.9983 | ₹4,635.00 | ₹6,297.81 | 4.40% | 0.997 $\pm$ 0.000 | Strong Baseline |
+| 4th | **Decision Tree** | 0.9963 | ₹6,893.48 | ₹9,373.24 | 6.86% | 0.995 $\pm$ 0.001 | Baseline |
+
+#### Budget Forecasting Performance Analysis:
+- **Gradient Boosting** achieved exceptional accuracy ($R^2 = 0.9992$, $\text{MAE} = ₹3,325.02$, $\text{MAPE} = 3.35\%$), effectively learning the cost contributions of venue scale, planned turnout, festival importance level, and department allocation.
+- The 5-fold cross-validation score ($0.999 \pm 0.000$) confirms minimal variance across festival segments.
+
+---
+
 ### 🏅 Official Champion Metrics (`reports/champion_metrics.json`)
 
 ```json
 {
   "attendance_regression": {
-    "champion_model": "Gradient Boosting",
-    "test_mae": 13.75,
-    "test_r2": 0.558,
-    "cv_r2": 0.56
+    "champion_model": "Random Forest",
+    "test_mae": 74.36,
+    "test_r2": 0.868
   },
   "booking_approval": {
     "champion_model": "Random Forest",
-    "test_roc_auc": 0.92,
-    "test_f1": 0.972,
-    "test_accuracy": 0.95
+    "test_roc_auc": 0.828,
+    "test_f1": 0.915,
+    "test_accuracy": 0.863
+  },
+  "budget_regression": {
+    "champion_model": "Gradient Boosting",
+    "test_mae": 3325.02,
+    "test_rmse": 4488.22,
+    "test_r2": 0.9992,
+    "test_mape": 3.35,
+    "cv_r2": 0.999
   }
 }
 ```

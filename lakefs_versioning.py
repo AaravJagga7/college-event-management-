@@ -88,9 +88,9 @@ class LakeFSManager:
                         "timestamp": datetime.utcnow().isoformat() + "Z",
                         "metadata": {"author": "antigravity", "pipeline": "college-event-ml"},
                         "objects": {
-                            "raw/synthetic_event_data.csv": {
-                                "local_path": "synthetic_event_data.csv",
-                                "lakefs_uri": f"lakefs://{self.repository}/{self.branch}/raw/synthetic_event_data.csv"
+                            "raw/rvce_8th_mile_data.csv": {
+                                "local_path": "rvce_8th_mile_data.csv",
+                                "lakefs_uri": f"lakefs://{self.repository}/{self.branch}/raw/rvce_8th_mile_data.csv"
                             },
                             "processed/features_ready.csv": {
                                 "local_path": "features_ready.csv",
@@ -139,8 +139,8 @@ class LakeFSManager:
                         "timestamp": datetime.fromtimestamp(latest.creation_date).isoformat() + "Z" if hasattr(latest, "creation_date") else str(latest.creation_date),
                         "metadata": latest.metadata if hasattr(latest, "metadata") else {},
                         "objects": {
-                            "raw/synthetic_event_data.csv": {
-                                "lakefs_uri": f"lakefs://{self.repository}/{target_branch}/raw/synthetic_event_data.csv"
+                            "raw/rvce_8th_mile_data.csv": {
+                                "lakefs_uri": f"lakefs://{self.repository}/{target_branch}/raw/rvce_8th_mile_data.csv"
                             },
                             "processed/features_ready.csv": {
                                 "lakefs_uri": f"lakefs://{self.repository}/{target_branch}/processed/features_ready.csv"
@@ -162,7 +162,7 @@ class LakeFSManager:
 
         return ledger["commits"][-1]
 
-    def sync_data(self, raw_path: str = "synthetic_event_data.csv", processed_path: str = "features_ready.csv", commit_msg: Optional[str] = None) -> Dict[str, Any]:
+    def sync_data(self, raw_path: str = "rvce_8th_mile_data.csv", processed_path: str = "features_ready.csv", commit_msg: Optional[str] = None) -> Dict[str, Any]:
         """
         Synchronizes raw data and engineered features to lakeFS, generating a deterministic commit.
         """
@@ -180,7 +180,7 @@ class LakeFSManager:
                         self.client.objects_api.upload_object(
                             repository=self.repository,
                             branch=self.branch,
-                            path="raw/synthetic_event_data.csv",
+                            path="raw/rvce_8th_mile_data.csv",
                             content=f_obj
                         )
                 if os.path.isfile(processed_path):
@@ -205,11 +205,11 @@ class LakeFSManager:
             commit_id = "c_" + hashlib.sha1(commit_payload.encode()).hexdigest()[:10]
 
         objects = {
-            "raw/synthetic_event_data.csv": {
+            "raw/rvce_8th_mile_data.csv": {
                 "local_path": raw_path,
                 "size_bytes": os.path.getsize(raw_path) if os.path.isfile(raw_path) else 0,
                 "checksum": raw_hash,
-                "lakefs_uri": f"lakefs://{self.repository}/{self.branch}/raw/synthetic_event_data.csv"
+                "lakefs_uri": f"lakefs://{self.repository}/{self.branch}/raw/rvce_8th_mile_data.csv"
             },
             "processed/features_ready.csv": {
                 "local_path": processed_path,

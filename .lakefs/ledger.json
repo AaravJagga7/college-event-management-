@@ -3,7 +3,7 @@
   "current_branch": "main",
   "branches": {
     "main": {
-      "head_commit": "89938529e991f40ec64880d1dc717b5ffcea01af97ba090665afc495265fd232"
+      "head_commit": "c_74c9896903"
     }
   },
   "commits": [
@@ -91,6 +91,84 @@
           "local_path": "features_ready.csv",
           "size_bytes": 80860,
           "checksum": "e889d1625099f3efb81ce8233985e6fa7bebbb921afafe5877d98ab7a7e8237d",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "43a3aa5eeab22b239a907e007c02c6ea74ca5ff3605832c82650d7411975ea9f",
+      "branch": "main",
+      "message": "Integrate RVCE 8th Mile Festival dataset and budget prediction model",
+      "timestamp": "2026-10-18T10:07:36.936512Z",
+      "metadata": {
+        "raw_checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+        "features_checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/synthetic_event_data.csv": {
+          "local_path": "synthetic_event_data.csv",
+          "size_bytes": 224498,
+          "checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/synthetic_event_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 94712,
+          "checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "f317e7175e116ed7779d368501f0fe7113df283dc846217ace0ad4873cfd553f",
+      "branch": "main",
+      "message": "Sync RVCE 8th Mile Festival dataset and features to lakeFS",
+      "timestamp": "2026-10-18T10:17:11.391203Z",
+      "metadata": {
+        "raw_checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+        "features_checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 224498,
+          "checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 94712,
+          "checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_74c9896903",
+      "branch": "main",
+      "message": "Automated sync: Raw (54ac2662) -> Features (1d8a4c03)",
+      "timestamp": "2026-10-18T10:52:39.993858Z",
+      "metadata": {
+        "raw_checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+        "features_checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 224498,
+          "checksum": "54ac26624723c4002f8db02b7e95b3787b5c20af96090d537e2e98a675a261e6",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 94712,
+          "checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
           "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
         }
       }
