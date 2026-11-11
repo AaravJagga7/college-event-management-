@@ -14,3 +14,4 @@ neptune-r/
 # Jenkins master-slave private keys
 jenkins/keys/agent_rsa
 !jenkins/keys/agent_rsa.pub
+wandb/

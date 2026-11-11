@@ -19,3 +19,4 @@ RUN mkdir -p /var/jenkins_home/casc_configs /var/jenkins_home/secrets && \
 USER jenkins
 
 EXPOSE 8080 50000
+

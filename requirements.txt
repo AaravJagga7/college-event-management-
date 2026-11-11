@@ -24,4 +24,6 @@ httpx>=0.27.0
 # Monitoring & Production
 python-dateutil>=2.8.2
 requests>=2.31.0
+wandb>=0.16.0
+
 

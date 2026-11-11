@@ -43,3 +43,4 @@ RUN usermod -aG root jenkins && \
     chown -R jenkins:jenkins /home/jenkins/agent
 
 EXPOSE 22
+
