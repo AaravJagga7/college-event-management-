@@ -1,23 +1,21 @@
 {
   "attendance_regression": {
-    "champion_model": "Decision Tree",
-    "test_mae": 81.28,
-    "test_r2": 0.846,
-    "cv_r2": 0.834
+    "champion_model": "Random Forest",
+    "test_mae": 81.92,
+    "test_r2": 0.8582
   },
   "booking_approval": {
-    "champion_model": "Decision Tree",
-    "test_roc_auc": 0.898,
-    "test_f1": 0.887,
-    "test_accuracy": 0.83
+    "champion_model": "Random Forest",
+    "test_roc_auc": 0.7664,
+    "test_f1": 0.8854,
+    "test_accuracy": 0.8033
   },
   "budget_regression": {
     "champion_model": "Gradient Boosting",
-    "test_mae": 3686.96,
-    "test_rmse": 4736.62,
-    "test_r2": 0.9991,
-    "test_mape": 3.63,
-    "cv_r2": 0.9991,
+    "test_mae": 16564.08,
+    "test_rmse": 30008.78,
+    "test_r2": 0.9632,
+    "test_mape": 8.88,
     "model_artifact": "reports/models/champion_budget_model.joblib"
   },
   "lakefs_metadata": {
@@ -25,5 +23,6 @@
     "branch": "main",
     "commit_id": "c_74c9896903",
     "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
-  }
+  },
+  "promoted_at": "2026-11-11T02:10:01.324668Z"
 }

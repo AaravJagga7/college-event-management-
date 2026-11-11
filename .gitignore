@@ -15,3 +15,11 @@ neptune-r/
 jenkins/keys/agent_rsa
 !jenkins/keys/agent_rsa.pub
 wandb/
+
+# Airflow runtime artifacts
+airflow/airflow.db
+airflow/airflow-webserver.pid
+airflow/logs/
+airflow/airflow.cfg
+airflow/webserver_config.py
+wandb/

@@ -1,0 +1,14 @@
+[2026-11-11T07:17:36.648+0530] {processor.py:161} INFO - Started process (PID=6481) to work on /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:17:36.649+0530] {processor.py:830} INFO - Processing file /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py for tasks to queue
+[2026-11-11T07:17:36.649+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:17:36.649+0530] {dagbag.py:540} INFO - Filling up the DagBag from /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:17:36.872+0530] {processor.py:840} INFO - DAG(s) 'rvce_event_intelligence_mlops_pipeline' retrieved from /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:17:36.876+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:17:36.876+0530] {dag.py:3047} INFO - Sync 1 DAGs
+[2026-11-11T07:17:36.902+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:17:36.902+0530] {dag.py:3834} INFO - Setting next_dagrun for rvce_event_intelligence_mlops_pipeline to 2026-11-10 00:00:00+00:00, run_after=2026-11-11 00:00:00+00:00
+[2026-11-11T07:17:36.907+0530] {processor.py:183} INFO - Processing /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py took 0.259 seconds
+[2026-11-11T07:18:01.803+0530] {processor.py:161} INFO - Started process (PID=6735) to work on /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:18:01.804+0530] {processor.py:830} INFO - Processing file /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py for tasks to queue
+[2026-11-11T07:18:01.804+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:18:01.804+0530] {dagbag.py:540} INFO - Filling up the DagBag from /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:18:02.017+0530] {processor.py:840} INFO - DAG(s) 'rvce_event_intelligence_mlops_pipeline' retrieved from /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py
+[2026-11-11T07:18:02.021+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:18:02.021+0530] {dag.py:3047} INFO - Sync 1 DAGs
+[2026-11-11T07:18:02.046+0530] {logging_mixin.py:188} INFO - [2026-11-11T07:18:02.046+0530] {dag.py:3834} INFO - Setting next_dagrun for rvce_event_intelligence_mlops_pipeline to 2026-11-10 00:00:00+00:00, run_after=2026-11-11 00:00:00+00:00
+[2026-11-11T07:18:02.052+0530] {processor.py:183} INFO - Processing /Users/aarav/event management/airflow/dags/rvce_event_intelligence_mlops_dag.py took 0.249 seconds

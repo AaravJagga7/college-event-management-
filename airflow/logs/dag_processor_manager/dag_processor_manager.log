@@ -1,0 +1,10 @@
+[2026-11-11T07:17:36.071+0530] {manager.py:469} INFO - Processing files using up to 1 processes at a time 
+[2026-11-11T07:17:36.071+0530] {manager.py:470} INFO - Process each file at most once every 30 seconds
+[2026-11-11T07:17:36.071+0530] {manager.py:471} INFO - Checking for new files in /Users/aarav/event management/airflow/dags every 300 seconds
+[2026-11-11T07:17:36.071+0530] {manager.py:738} INFO - Searching for files in /Users/aarav/event management/airflow/dags
+[2026-11-11T07:17:36.071+0530] {manager.py:741} INFO - There are 1 files in /Users/aarav/event management/airflow/dags
+[2026-11-11T07:18:01.194+0530] {manager.py:469} INFO - Processing files using up to 1 processes at a time 
+[2026-11-11T07:18:01.195+0530] {manager.py:470} INFO - Process each file at most once every 30 seconds
+[2026-11-11T07:18:01.195+0530] {manager.py:471} INFO - Checking for new files in /Users/aarav/event management/airflow/dags every 300 seconds
+[2026-11-11T07:18:01.195+0530] {manager.py:738} INFO - Searching for files in /Users/aarav/event management/airflow/dags
+[2026-11-11T07:18:01.195+0530] {manager.py:741} INFO - There are 1 files in /Users/aarav/event management/airflow/dags
