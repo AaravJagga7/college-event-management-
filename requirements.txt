@@ -7,8 +7,9 @@ seaborn>=0.12.0
 joblib>=1.3.0
 pyyaml>=6.0
 
-# Experiment Tracking & Model Registry
-mlflow>=2.10.0
+# Model Registry & Lifecycle Management
+# Kubeflow Model Registry specification & client
+# (REST API client / Kubeflow Model Registry entity model)
 
 # Pipeline Orchestration
 apache-airflow>=2.8.3

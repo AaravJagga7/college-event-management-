@@ -22,7 +22,8 @@ class Settings(BaseSettings):
     # Model Artifact Paths
     models_dir: str = os.getenv("MODELS_DIR", "reports/models")
     champion_metrics_path: str = os.getenv("CHAMPION_METRICS_PATH", "reports/champion_metrics.json")
-    mlflow_tracking_uri: str = os.getenv("MLFLOW_TRACKING_URI", "sqlite:///mlflow.db")
+    kubeflow_registry_uri: str = os.getenv("KUBEFLOW_REGISTRY_URI", "http://localhost:8080")
+    kubeflow_registry_file: str = os.getenv("KUBEFLOW_REGISTRY_FILE", "reports/kubeflow_model_registry.json")
     
     # Feature store / baseline data path for drift & testing
     feature_store_path: str = os.getenv("FEATURE_STORE_PATH", "features_ready.csv")

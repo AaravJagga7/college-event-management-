@@ -167,7 +167,7 @@ jobs:
           echo "🚀 Initiating Zero-Downtime Deployment to Production Cluster"
           echo "Commit SHA: ${{ github.sha }}"
           echo "Timestamp:  $(date -u)"
-          echo "Registry:   MLflow Model Registry (Production Stage)"
+          echo "Registry:   Kubeflow Model Registry (Production Stage)"
           echo "Service:    rvce-event-intelligence-api:latest"
           echo "============================================================"
           echo "✅ All Quality Gates Verified (R2, F1, AUC, Latency, Risk Checks)"

@@ -1,0 +1,138 @@
+{
+  "registry_version": "v1alpha3",
+  "backend": "kubeflow-model-registry",
+  "server_uri": "http://localhost:8080",
+  "registered_models": [
+    {
+      "id": "rm-attendance-001",
+      "name": "college-attendance-champion",
+      "description": "Champion Random Forest Regressor (n_estimators=150, max_depth=8) for RVCE 8th Mile attendance_regression",
+      "state": "LIVE",
+      "owner": "rvce-mlops-team",
+      "custom_properties": {
+        "task": "attendance_regression",
+        "target": "TARGET_registers",
+        "feature_count": 21
+      }
+    },
+    {
+      "id": "rm-approval-002",
+      "name": "college-approval-champion",
+      "description": "Champion Random Forest Classifier (n_estimators=150, max_depth=6, class_weight=balanced) for RVCE 8th Mile booking_approval",
+      "state": "LIVE",
+      "owner": "rvce-mlops-team",
+      "custom_properties": {
+        "task": "booking_approval",
+        "target": "TARGET_accept",
+        "feature_count": 22
+      }
+    },
+    {
+      "id": "rm-budget-003",
+      "name": "college-budget-champion",
+      "description": "Champion Gradient Boosting Regressor (n_estimators=150, lr=0.05, max_depth=4) for RVCE 8th Mile budget_regression",
+      "state": "LIVE",
+      "owner": "rvce-mlops-team",
+      "custom_properties": {
+        "task": "budget_regression",
+        "target": "TARGET_budget",
+        "feature_count": 22
+      }
+    }
+  ],
+  "model_versions": [
+    {
+      "id": "mv-attendance-v1.0.0",
+      "registered_model_id": "rm-attendance-001",
+      "name": "v1.0.0",
+      "author": "rvce-mlops-engineer",
+      "stage": "Production",
+      "state": "LIVE",
+      "last_updated_at": "2026-11-11T02:57:07.529889Z"
+    },
+    {
+      "id": "mv-approval-v1.0.0",
+      "registered_model_id": "rm-approval-002",
+      "name": "v1.0.0",
+      "author": "rvce-mlops-engineer",
+      "stage": "Production",
+      "state": "LIVE",
+      "last_updated_at": "2026-11-11T02:57:07.529908Z"
+    },
+    {
+      "id": "mv-budget-v1.0.0",
+      "registered_model_id": "rm-budget-003",
+      "name": "v1.0.0",
+      "author": "rvce-mlops-engineer",
+      "stage": "Production",
+      "state": "LIVE",
+      "last_updated_at": "2026-11-11T02:57:07.529922Z"
+    }
+  ],
+  "model_artifacts": [
+    {
+      "id": "art-attendance-1.0.0",
+      "model_version_id": "mv-attendance-v1.0.0",
+      "name": "college-attendance-champion-artifact",
+      "uri": "/Users/aarav/event management/reports/models/reg_random_forest.joblib",
+      "model_format_name": "scikit-learn",
+      "model_format_version": "1.6.1",
+      "metrics": {
+        "champion_model": "Decision Tree",
+        "test_mae": 81.28,
+        "test_r2": 0.846,
+        "cv_r2": 0.838
+      },
+      "lakefs_lineage": {
+        "repository": "college-event-data",
+        "branch": "main",
+        "commit_id": "c_74c9896903",
+        "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+      }
+    },
+    {
+      "id": "art-approval-1.0.0",
+      "model_version_id": "mv-approval-v1.0.0",
+      "name": "college-approval-champion-artifact",
+      "uri": "/Users/aarav/event management/reports/models/cls_random_forest.joblib",
+      "model_format_name": "scikit-learn",
+      "model_format_version": "1.6.1",
+      "metrics": {
+        "champion_model": "Gradient Boosting",
+        "test_roc_auc": 0.879,
+        "test_f1": 0.9138,
+        "test_accuracy": 0.8567
+      },
+      "lakefs_lineage": {
+        "repository": "college-event-data",
+        "branch": "main",
+        "commit_id": "c_74c9896903",
+        "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+      }
+    },
+    {
+      "id": "art-budget-1.0.0",
+      "model_version_id": "mv-budget-v1.0.0",
+      "name": "college-budget-champion-artifact",
+      "uri": "/Users/aarav/event management/reports/models/champion_budget_model.joblib",
+      "model_format_name": "scikit-learn",
+      "model_format_version": "1.6.1",
+      "metrics": {
+        "champion_model": "Gradient Boosting",
+        "test_mae": 3686.96,
+        "test_rmse": 4736.62,
+        "test_r2": 0.9991,
+        "test_mape": 3.63,
+        "cv_r2": 0.9991,
+        "model_artifact": "reports/models/champion_budget_model.joblib"
+      },
+      "lakefs_lineage": {
+        "repository": "college-event-data",
+        "branch": "main",
+        "commit_id": "c_74c9896903",
+        "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+      }
+    }
+  ],
+  "exported_at": "2026-11-11T02:57:07.529935Z"
+}

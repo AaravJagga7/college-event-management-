@@ -83,6 +83,22 @@ def test_model_promotion_endpoint(client):
     assert res2.json()["detail"]["current_stage"] == "Production"
 
 
+def test_kubeflow_model_registry_endpoint(client):
+    """Tests Kubeflow Model Registry export endpoint adhering to KFMR v1alpha3 spec."""
+    res = client.get("/registry/kubeflow")
+    assert res.status_code == 200
+    data = res.json()
+    assert data["backend"] == "kubeflow-model-registry"
+    assert "registered_models" in data
+    assert len(data["registered_models"]) == 3
+    assert "model_versions" in data
+    assert "model_artifacts" in data
+    registered_names = [rm["name"] for rm in data["registered_models"]]
+    assert "college-attendance-champion" in registered_names
+    assert "college-approval-champion" in registered_names
+    assert "college-budget-champion" in registered_names
+
+
 def test_predict_attendance_endpoint(client):
     """Tests direct attendance inference route."""
     payload = {

@@ -1,5 +1,5 @@
-Model,Run ID,Model URI,Accuracy,Precision,Recall,F1-Score,ROC-AUC,CV ROC-AUC
-Decision Tree,b1c7fb84beee450c986b4ff6e7c953ce,models:/m-9942bdff90244ac8b6094277f0e3968f,0.83,0.943,0.837,0.887,0.898,0.802
-Random Forest,290b21347b464fb388256a9e3f41b894,models:/m-5cf2c7cee4f440efabd6246a6466007e,0.853,0.926,0.887,0.906,0.882,0.86
-Gradient Boosting,eeb5fee27fd64095a53d5391e1751f30,models:/m-37944acc2872458381263ae200f30c52,0.86,0.896,0.933,0.914,0.885,0.858
-Voting Classifier,f9d5591dd01a4726a62ac4ec6521ffd2,models:/m-d63d007daa2c456e83964cb1eb102d8d,0.873,0.924,0.916,0.92,0.898,0.862
+Model,Accuracy,F1-Score,ROC-AUC,Artifact
+Decision Tree,0.84,0.9059,0.8482,reports/models/cls_decision_tree.joblib
+Random Forest,0.8533,0.9056,0.8761,reports/models/cls_random_forest.joblib
+Gradient Boosting,0.8567,0.9138,0.879,reports/models/cls_gradient_boosting.joblib
+Voting Classifier,0.8533,0.9116,0.8767,reports/models/cls_voting_classifier.joblib

@@ -1,21 +1,23 @@
 {
   "attendance_regression": {
-    "champion_model": "Random Forest",
-    "test_mae": 81.92,
-    "test_r2": 0.8582
+    "champion_model": "Decision Tree",
+    "test_mae": 81.28,
+    "test_r2": 0.846,
+    "cv_r2": 0.838
   },
   "booking_approval": {
-    "champion_model": "Random Forest",
-    "test_roc_auc": 0.7664,
-    "test_f1": 0.8854,
-    "test_accuracy": 0.8033
+    "champion_model": "Gradient Boosting",
+    "test_roc_auc": 0.879,
+    "test_f1": 0.9138,
+    "test_accuracy": 0.8567
   },
   "budget_regression": {
     "champion_model": "Gradient Boosting",
-    "test_mae": 16564.08,
-    "test_rmse": 30008.78,
-    "test_r2": 0.9632,
-    "test_mape": 8.88,
+    "test_mae": 3686.96,
+    "test_rmse": 4736.62,
+    "test_r2": 0.9991,
+    "test_mape": 3.63,
+    "cv_r2": 0.9991,
     "model_artifact": "reports/models/champion_budget_model.joblib"
   },
   "lakefs_metadata": {
@@ -24,5 +26,9 @@
     "commit_id": "c_74c9896903",
     "features_lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
   },
-  "promoted_at": "2026-11-11T02:10:01.324668Z"
+  "registry": {
+    "type": "kubeflow-model-registry",
+    "spec_version": "v1alpha3",
+    "promoted_at": "2026-11-11T02:53:58.291832Z"
+  }
 }

@@ -50,6 +50,7 @@ college-event-management/
 |---|---|
 | **Inference API** | FastAPI + Uvicorn |
 | **Frontend UI** | Gradient HTML dashboard (Vercel) |
+| **Model Registry** | Kubeflow Model Registry (KFMR v1alpha3) |
 | **Pipeline Orchestration** | Apache Airflow 2.8 (`@daily` DAG) |
 | **Experiment Tracking** | Weights & Biases (W&B) |
 | **Data / Model Versioning** | DagsHub + lakeFS |
@@ -122,6 +123,9 @@ export WANDB_MODE=offline
 |---|---|---|
 | `GET` | `/health` | Service health + models loaded |
 | `GET` | `/ui` | Gradient dashboard |
+| `GET` | `/registry/models` | Registered model metadata & lineage |
+| `GET` | `/registry/kubeflow` | Full Kubeflow Model Registry (KFMR) specification |
+| `POST` | `/registry/promote` | Promote model stage (Dev/Staging/Prod/Archived) |
 | `POST` | `/predict/attendance` | Turnout regression |
 | `POST` | `/predict/approval` | Booking approval classification |
 | `POST` | `/predict/budget` | Budget regression (INR) |
@@ -145,9 +149,9 @@ export WANDB_MODE=offline
 ## 🧪 Test Coverage
 
 ```
-tests/test_api.py               15 tests  — health, predict/all, edge cases
+tests/test_api.py               16 tests  — health, predict/all, Kubeflow registry, edge cases
 tests/test_model_performance.py  3 tests  — R², MAE, ROC-AUC thresholds
 tests/test_model_risk_quality.py 8 tests  — quality gates, risk constraints
 ─────────────────────────────────────────
-                                26 passed
+                                27 passed
 ```

@@ -1,5 +1,4 @@
-Model,Test R²,Test MAE,Test RMSE,Test MAPE (%),Train R²,CV R² (Mean),CV R² (Std),MLflow Run ID
-Decision Tree,0.996,7537.02,9882.2,7.77,0.9973,0.9955,0.0005,5979c687bd4947dc9c7fbe058b9d41f2
-Random Forest,0.9978,5572.11,7280.65,5.43,0.999,0.9977,0.0002,61213d900a32413a881e84996fefcf9a
-Gradient Boosting,0.9991,3686.96,4736.62,3.63,0.9997,0.9991,0.0001,2b095efe2e2f4b5fbfb9993fe5d636a3
-Voting Regressor,0.9984,4808.24,6215.06,4.75,0.9993,0.9984,0.0002,828d46739a7349848022c0299fdc5d35
+Model,Test R²,Test MAE,Test RMSE,Test MAPE (%),CV R² (Mean),Artifact
+Gradient Boosting,0.9991,3686.96,4736.62,3.63,0.9991,reports/models/bgt_gradient_boosting.joblib
+Random Forest,0.9978,5572.11,7280.65,5.43,0.9978,reports/models/bgt_random_forest.joblib
+Decision Tree,0.996,7537.02,9882.2,7.77,0.9955,reports/models/bgt_decision_tree.joblib

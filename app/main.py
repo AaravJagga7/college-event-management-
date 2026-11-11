@@ -314,7 +314,7 @@ async def list_ml_artifacts():
             "filename": "ml_architecture.png",
             "url": "/artifacts/ml_architecture.png",
             "badge": "System Flow",
-            "description": "End-to-end data lake, feature extraction, MLflow model registry, and FastAPI inference pipeline."
+            "description": "End-to-end data lake, feature extraction, Kubeflow Model Registry, and FastAPI inference pipeline."
         },
         {
             "id": "master_dashboard",
@@ -437,6 +437,12 @@ async def promote_model_stage(task: str, stage: ModelStage):
         return {"status": "SUCCESS", "detail": res}
     except KeyError as e:
         raise HTTPException(status_code=404, detail=str(e))
+
+
+@app.get("/registry/kubeflow", tags=["Model Registry"])
+async def get_kubeflow_model_registry():
+    """Returns the full Kubeflow Model Registry specification (RegisteredModels, ModelVersions, ModelArtifacts)."""
+    return registry.export_kubeflow_registry()
 
 
 # ------------------------------------------------------------------------------

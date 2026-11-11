@@ -395,7 +395,7 @@ def pipeline_completion_summary(**context):
     print("✓ 21-Feature Store & Data Drift Checked")
     print("✓ Triple-Task Champion Models Trained & Benchmarked")
     print("✓ All 3 Model Risk & Quality Gates Passed")
-    print("✓ MLflow / Local Model Registry Promoted")
+    print("✓ Kubeflow Model Registry Promoted")
     print("✓ Weights & Biases (W&B) + DagsHub Lineage Synced")
     print("✓ Production Vercel SLA & Endpoints Verified Live")
     print("================================================================================")
