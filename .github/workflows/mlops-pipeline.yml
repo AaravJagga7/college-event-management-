@@ -22,10 +22,10 @@ jobs:
       - name: Checkout Code
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install Linting Tools
@@ -50,10 +50,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install Production & Testing Dependencies
@@ -80,10 +80,10 @@ jobs:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.9
+      - name: Set up Python 3.12
         uses: actions/setup-python@v5
         with:
-          python-version: '3.9'
+          python-version: '3.12'
           cache: 'pip'
 
       - name: Install Dependencies
@@ -116,7 +116,7 @@ jobs:
       - name: Run Container & Test Health Probe
         run: |
           docker run -d --name test-api-container -p 8000:8000 rvce-event-intelligence-api:latest
-          
+
           echo "Waiting for container startup and model pre-warming..."
           for i in {1..30}; do
             STATUS=$(curl -s -o /dev/null -w "%{http_code}" http://localhost:8000/health || true)
@@ -126,11 +126,11 @@ jobs:
             fi
             sleep 1
           done
-          
+
           # Container liveness verification
           curl -f http://localhost:8000/health
           curl -f http://localhost:8000/ready
-          
+
           # Container inference smoke test
           curl -X POST http://localhost:8000/predict/attendance \
             -H "Content-Type: application/json" \
@@ -173,4 +173,3 @@ jobs:
           echo "✅ All Quality Gates Verified (R2, F1, AUC, Latency, Risk Checks)"
           echo "✅ Container Healthcheck Verified"
           echo "✅ Production Deployment Succeeded!"
-

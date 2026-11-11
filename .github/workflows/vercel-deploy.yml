@@ -14,7 +14,7 @@ concurrency:
 env:
   VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
   VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
-  PYTHON_VERSION: "3.9"
+  PYTHON_VERSION: "3.12"
 
 jobs:
   # ============================================================================
@@ -68,7 +68,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -98,7 +98,7 @@ jobs:
               issue_number: context.issue.number,
               owner: context.repo.owner,
               repo: context.repo.repo,
-              body: `### 🚀 Vercel Preview Deployment Ready!\n\n- **Live Preview URL**: ${url}\n- **Interactive Model UI**: ${url}/ui\n- **Swagger Docs**: ${url}/docs\n- **Quality Gates**: ✅ All 23 Model & Risk Checks Passed`
+              body: `### 🚀 Vercel Preview Deployment Ready!\n\n- **Live Preview URL**: ${url}\n- **Interactive Model UI**: ${url}/ui\n- **Swagger Docs**: ${url}/docs\n- **Quality Gates**: ✅ All 26 Model & Risk Checks Passed`
             });
 
   # ============================================================================
@@ -116,7 +116,7 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 22
 
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
@@ -147,4 +147,3 @@ jobs:
           sleep 5
           curl --retry 5 --retry-delay 3 --retry-connrefused -f "${PROD_URL}/health" || echo "Cold start initial check completed"
           curl -f "${PROD_URL}/ready" || true
-
