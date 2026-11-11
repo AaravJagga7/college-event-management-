@@ -11,15 +11,12 @@ campus/
 neptune-r/
 .vercel
 
-# Jenkins master-slave private keys
-jenkins/keys/agent_rsa
-!jenkins/keys/agent_rsa.pub
+# Weights & Biases offline runs
 wandb/
 
-# Airflow runtime artifacts
+# Airflow runtime artifacts (keep only the DAG)
 airflow/airflow.db
 airflow/airflow-webserver.pid
 airflow/logs/
 airflow/airflow.cfg
 airflow/webserver_config.py
-wandb/
