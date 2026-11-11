@@ -2,6 +2,8 @@
 Pytest Test Fixtures and Setup
 """
 
+import os
+import subprocess
 import pytest
 import pandas as pd
 import numpy as np
@@ -22,8 +24,12 @@ def client():
 
 @pytest.fixture(scope="session")
 def test_dataset():
-    """Loads features_ready.csv for testing."""
-    df = pd.read_csv("features_ready.csv")
+    """Loads features_ready.csv for testing, generating it from raw data if absent."""
+    csv_path = "features_ready.csv"
+    if not os.path.exists(csv_path):
+        import sys
+        subprocess.run([sys.executable, "eda_and_feature_extraction.py"], check=True)
+    df = pd.read_csv(csv_path)
     return df
 
 

@@ -1,5 +1,4 @@
 /synthetic_event_data.csv
-/features_ready.csv
 mlflow.db
 mlruns/
 *.zip
