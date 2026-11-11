@@ -1,0 +1,33 @@
+version: '3.8'
+
+services:
+  jenkins-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rvce-jenkins-server:lts
+    container_name: rvce_jenkins_server
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "50000:50000"
+    environment:
+      - JAVA_OPTS=-Djenkins.install.runSetupWizard=true
+      - VERCEL_TOKEN=${VERCEL_TOKEN:-}
+      - VERCEL_ORG_ID=${VERCEL_ORG_ID:-}
+      - VERCEL_PROJECT_ID=${VERCEL_PROJECT_ID:-}
+    volumes:
+      - jenkins_data:/var/jenkins_home
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ../:/var/jenkins_home/workspace/college-event-management:rw
+    networks:
+      - jenkins-net
+
+networks:
+  jenkins-net:
+    driver: bridge
+
+volumes:
+  jenkins_data:
+    name: rvce_jenkins_data
+

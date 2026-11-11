@@ -1,0 +1,34 @@
+# Git
+.git
+.gitignore
+
+# Virtual Environments
+.venv
+campus
+env
+venv
+
+# Python Bytecode & Caches
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache
+.coverage
+htmlcov
+
+# lakeFS & Neptune metadata
+.lakefs
+.neptune
+neptune-r
+.lakectl.yaml
+
+# Notebooks & Raw large archives
+*.ipynb
+college_event_ml_package.zip
+*.xlsx
+
+# Local temporary dumps
+*.log
+.DS_Store
+

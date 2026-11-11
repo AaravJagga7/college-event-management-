@@ -1,0 +1,81 @@
+# ==============================================================================
+# Jenkins Configuration as Code (JCasC) & Pipeline Job Definition (jenkins.yml)
+# ==============================================================================
+# Defines the automated Jenkins Pipeline job for RVCE Event Intelligence MLOps,
+# connecting GitHub webhooks, credential bindings, and automated Vercel deployment.
+# ==============================================================================
+
+jenkins:
+  systemMessage: "RVCE 8th Mile Event Intelligence MLOps CI/CD System (Managed by Jenkins)"
+  numExecutors: 2
+  mode: NORMAL
+  scmCheckoutRetryCount: 3
+
+credentials:
+  system:
+    domainCredentials:
+      - credentials:
+          - string:
+              scope: GLOBAL
+              id: "VERCEL_TOKEN"
+              secret: "${VERCEL_TOKEN}"
+              description: "Vercel API Authentication Secret Token"
+          - string:
+              scope: GLOBAL
+              id: "VERCEL_PROJECT_ID"
+              secret: "${VERCEL_PROJECT_ID}"
+              description: "Vercel Target Project Identifier"
+          - string:
+              scope: GLOBAL
+              id: "VERCEL_ORG_ID"
+              secret: "${VERCEL_ORG_ID}"
+              description: "Vercel Organization / Team Identifier"
+
+jobs:
+  - script: >
+      pipelineJob('rvce-event-intelligence-mlops') {
+        description('End-to-End MLOps Pipeline: Linting -> Model Risk Gates -> API Testing -> Docker Build -> Vercel Deployment')
+        displayName('RVCE 8th Mile MLOps Pipeline')
+        
+        properties {
+          githubProjectProperty {
+            projectUrl('https://github.com/aarav/college-event-management')
+            displayName('RVCE Event Intelligence')
+          }
+          buildDiscarder {
+            strategy {
+              logRotator {
+                numToKeepStr('20')
+                daysToKeepStr('30')
+                artifactNumToKeepStr('5')
+              }
+            }
+          }
+          disableConcurrentBuilds()
+        }
+
+        triggers {
+          githubPush()
+          scm('H/15 * * * *')
+        }
+
+        definition {
+          cpsScm {
+            scm {
+              git {
+                remote {
+                  url('https://github.com/aarav/college-event-management.git')
+                  credentials('github-deploy-key')
+                }
+                branch('*/main')
+                extensions {
+                  cleanBeforeCheckout()
+                }
+              }
+            }
+            scriptPath('Jenkinsfile')
+            lightweight(true)
+          }
+        }
+      }
+

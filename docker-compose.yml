@@ -1,0 +1,83 @@
+version: '3.8'
+
+services:
+  # ============================================================================
+  # 1. FastAPI Model Inference Service
+  # ============================================================================
+  event-inference-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rvce-event-intelligence-api:latest
+    container_name: rvce_event_api
+    restart: unless-stopped
+    ports:
+      - "8000:8000"
+    environment:
+      - APP_ENV=production
+      - DEBUG=False
+      - HOST=0.0.0.0
+      - PORT=8000
+      - MODELS_DIR=/app/reports/models
+      - CHAMPION_METRICS_PATH=/app/reports/champion_metrics.json
+      - MLFLOW_TRACKING_URI=sqlite:////app/mlflow.db
+    volumes:
+      # Live-mount models and metrics for zero-downtime hot swapping
+      - ./reports/models:/app/reports/models:ro
+      - ./reports/champion_metrics.json:/app/reports/champion_metrics.json:ro
+      - ./mlflow.db:/app/mlflow.db:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 20s
+      timeout: 5s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    networks:
+      - event-mlops-net
+
+  # ============================================================================
+  # 2. MLflow Model Registry & Experiment Tracking UI Service
+  # ============================================================================
+  mlflow-registry:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: rvce-mlflow-registry:latest
+    container_name: rvce_mlflow_registry
+    restart: unless-stopped
+    command: >
+      mlflow server
+      --backend-store-uri sqlite:////app/mlflow.db
+      --default-artifact-root /app/mlruns
+      --host 0.0.0.0
+      --port 5000
+    ports:
+      - "5000:5000"
+    volumes:
+      - ./mlflow.db:/app/mlflow.db
+      - ./mlruns:/app/mlruns
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          cpus: '1.0'
+          memory: 1G
+    networks:
+      - event-mlops-net
+
+networks:
+  event-mlops-net:
+    driver: bridge
+
