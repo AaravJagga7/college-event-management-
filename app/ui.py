@@ -2,1142 +2,767 @@
 ================================================================================
 RVCE 8th Mile Event Intelligence & MLOps Platform - Interactive Web UI
 ================================================================================
-A futuristic, responsive, dark-mode dashboard featuring:
-  1. Live Triple-Task Event Simulator with instant inference & preset scenarios
-  2. High-Resolution Machine Learning Artifacts & Lightbox Evaluation Gallery
-  3. Official 3-Day Festival Timetable Event Browser with 1-click simulation
-  4. Real-Time Tool & System Telemetry Monitoring (Latency SLA, CPU/RAM, Prometheus)
+Clean, executive dashboard matching the official student event management design:
+  - Top KPI Summary Cards with double-circle teal icons & subtext
+  - Registrations Timeline Bar Chart with toolbar controls
+  - Years of Graduation & Account Types Distribution Donut Charts with callout labels
+  - Live "Switch to Text View" toggle
+  - Working "Copy" buttons with clipboard toasts
+  - Integrated Real-Time Triple-Task AI Predictor & Kubeflow Model Telemetry
 ================================================================================
 """
 
 UI_HTML = """<!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>RVCE 8th Mile — AI Event Intelligence & MLOps Platform</title>
+  <title>RVCE 8th Mile — AI Event Intelligence Dashboard</title>
   <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          colors: {
-            brand: {
-              50: '#f0fdfa',
-              400: '#2dd4bf',
-              500: '#14b8a6',
-              600: '#0d9488',
-              900: '#134e4a',
-            },
-            dark: {
-              bg: '#090d16',
-              surface: '#0f172a',
-              card: '#131d35',
-              border: '#1e293b'
-            }
-          }
-        }
-      }
-    }
-  </script>
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
-    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #090d16; color: #f1f5f9; }
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap');
+    
+    body {
+      font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background-color: #f0f2f5;
+      color: #334155;
+    }
+    
     .font-mono { font-family: 'JetBrains Mono', monospace; }
-    .glass-card { background: rgba(19, 29, 53, 0.7); backdrop-filter: blur(16px); border: 1px solid rgba(255, 255, 255, 0.08); }
-    .glass-card:hover { border-color: rgba(45, 212, 191, 0.3); }
-    .glow-teal { box-shadow: 0 0 25px -5px rgba(20, 184, 166, 0.25); }
-    .glow-rose { box-shadow: 0 0 25px -5px rgba(244, 63, 94, 0.25); }
-    .glow-amber { box-shadow: 0 0 25px -5px rgba(245, 158, 11, 0.25); }
-    .pulse-dot { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.15); } }
+    
+    /* Clean Card Styling matching uploaded design */
+    .dashboard-card {
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      transition: all 0.2s ease;
+    }
+    .dashboard-card:hover {
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+    }
+    
+    /* Circular Icon Badge matching screenshot double-ring */
+    .icon-badge {
+      width: 58px;
+      height: 58px;
+      border-radius: 50%;
+      border: 2px solid #5eead4;
+      padding: 3px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #f0fdfa;
+      flex-shrink: 0;
+    }
+    .icon-badge-inner {
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 1.5px solid #2dd4bf;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #0d9488;
+      font-size: 20px;
+    }
+
+    /* Olive-green pill button from screenshot */
+    .btn-olive {
+      background-color: #557a2b;
+      color: #ffffff;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 4px;
+      transition: background-color 0.15s ease;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .btn-olive:hover {
+      background-color: #476724;
+    }
+
+    /* Royal Blue Copy button from screenshot */
+    .btn-copy {
+      background-color: #0284c7;
+      color: #ffffff;
+      font-size: 12px;
+      font-weight: 600;
+      padding: 4px 14px;
+      border-radius: 4px;
+      transition: background-color 0.15s ease;
+    }
+    .btn-copy:hover {
+      background-color: #0369a1;
+    }
+
+    /* Toast Notification */
+    #toast {
+      visibility: hidden;
+      min-width: 260px;
+      background-color: #1e293b;
+      color: #fff;
+      text-align: center;
+      border-radius: 6px;
+      padding: 12px 18px;
+      position: fixed;
+      z-index: 100;
+      right: 30px;
+      bottom: 30px;
+      font-size: 14px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    #toast.show {
+      visibility: visible;
+      animation: fadein 0.3s, fadeout 0.5s 2.5s;
+    }
+    @keyframes fadein { from { bottom: 10px; opacity: 0; } to { bottom: 30px; opacity: 1; } }
+    @keyframes fadeout { from { bottom: 30px; opacity: 1; } to { bottom: 10px; opacity: 0; } }
   </style>
 </head>
-<body class="min-h-screen flex flex-col antialiased selection:bg-teal-500 selection:text-white">
+<body class="p-4 md:p-6 lg:p-8">
 
   <!-- ======================================================================== -->
-  <!-- TOP NAVIGATION BAR -->
+  <!-- MAIN DASHBOARD CONTAINER -->
   <!-- ======================================================================== -->
-  <header class="border-b border-slate-800/80 bg-slate-950/80 backdrop-blur-xl sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-3">
-      
-      <!-- Brand & Title -->
-      <div class="flex items-center space-x-3.5">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-teal-500 to-emerald-600 p-0.5 shadow-lg shadow-teal-500/20">
-          <div class="w-full h-full bg-slate-950 rounded-[10px] flex items-center justify-center text-teal-400 font-bold text-lg">
-            <i class="fa-solid fa-graduation-cap"></i>
-          </div>
-        </div>
-        <div>
-          <div class="flex items-center space-x-2">
-            <h1 class="text-base font-extrabold tracking-tight text-white flex items-center gap-1.5">
-              RVCE 8th Mile
-              <span class="text-slate-400 font-normal">|</span>
-              <span class="text-xs font-semibold text-teal-400 bg-teal-950/80 border border-teal-800/50 px-2 py-0.5 rounded-full">
-                MLOps &amp; AI Engine
-              </span>
-            </h1>
-          </div>
-          <p class="text-xs text-slate-400">Festival Turnout Forecasting, Venue Allocation &amp; Budget Optimization</p>
+  <div class="max-w-[1400px] mx-auto bg-white rounded-xl shadow-sm border border-slate-200 p-5 md:p-6">
+
+    <!-- Top Title & Controls Header (Exact Match to Screenshot) -->
+    <div class="border-b border-slate-100 pb-4 mb-5 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-sm md:text-base font-semibold text-slate-700">
+          Dashboard <span class="font-normal text-slate-500">(RVCE 8th Mile Festival &amp; New Student Orientation — Wed, Jan 1, 2025 8:00 AM – Mon, May 31, 2027 1:00 PM)</span>
+        </h1>
+        <div class="mt-2.5 flex flex-wrap items-center gap-2">
+          <button onclick="toggleTextView()" id="toggleViewBtn" class="btn-olive">
+            <i class="fa-solid fa-list-check text-xs"></i>
+            <span>Switch to Text View</span>
+          </button>
+          
+          <button onclick="togglePredictorModal()" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-300 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-wand-magic-sparkles text-teal-600"></i>
+            <span>Live AI Proposal Simulator</span>
+          </button>
+
+          <a href="/docs" target="_blank" class="text-xs font-semibold px-3 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded border border-slate-300 transition flex items-center gap-1.5">
+            <i class="fa-solid fa-code text-teal-600"></i>
+            <span>API Docs</span>
+          </a>
         </div>
       </div>
 
-      <!-- Quick Telemetry & Links -->
-      <div class="flex items-center space-x-3 text-xs">
-        <div class="hidden sm:flex items-center space-x-2 bg-slate-900/90 border border-slate-800 px-3 py-1.5 rounded-lg">
-          <span class="w-2 h-2 rounded-full bg-emerald-400 pulse-dot"></span>
-          <span class="text-slate-300">Models: <strong class="text-emerald-400">Active (3/3)</strong></span>
-          <span class="text-slate-600">|</span>
-          <span class="text-slate-400">P95 Latency:</span>
-          <span class="text-teal-400 font-mono font-bold" id="headerLatency">~12.4ms</span>
-        </div>
-        <a href="/docs" target="_blank" class="flex items-center space-x-1.5 bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-1.5 rounded-lg border border-slate-700 transition">
-          <i class="fa-solid fa-code text-teal-400"></i>
-          <span>API Swagger</span>
-        </a>
+      <!-- Live Service Telemetry Status Badge -->
+      <div class="flex items-center gap-2 bg-slate-50 border border-slate-200 px-3 py-2 rounded-lg text-xs">
+        <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span class="text-slate-600">Kubeflow Registry: <strong class="text-emerald-700">Live (v1alpha3)</strong></span>
+        <span class="text-slate-300">|</span>
+        <span class="text-slate-500">P95 SLA:</span>
+        <span class="font-mono font-bold text-teal-700" id="liveP95">16.4ms</span>
       </div>
     </div>
 
-    <!-- MAIN TAB NAVIGATION -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-slate-800/50 flex space-x-6 text-xs font-semibold overflow-x-auto">
-      <button onclick="switchTab('simulator')" id="tabBtn-simulator" class="py-3 border-b-2 border-teal-500 text-teal-400 flex items-center gap-2 transition whitespace-nowrap">
-        <i class="fa-solid fa-bolt"></i>
-        <span>Event Simulator</span>
-      </button>
-      <button onclick="switchTab('artifacts')" id="tabBtn-artifacts" class="py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
-        <i class="fa-solid fa-chart-line"></i>
-        <span>ML Artifacts &amp; Evaluation Gallery</span>
-      </button>
-      <button onclick="switchTab('timetable')" id="tabBtn-timetable" class="py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
-        <i class="fa-solid fa-calendar-days"></i>
-        <span>Official Schedule Browser</span>
-      </button>
-      <button onclick="switchTab('monitoring')" id="tabBtn-monitoring" class="py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap">
-        <i class="fa-solid fa-gauge-high"></i>
-        <span>Tool &amp; System Telemetry</span>
-      </button>
-    </div>
-  </header>
+    <!-- ======================================================================== -->
+    <!-- GRAPHICAL VIEW (DEFAULT) -->
+    <!-- ======================================================================== -->
+    <div id="graphicalView" class="space-y-6">
 
-  <!-- ======================================================================== -->
-  <!-- CONTENT AREA -->
-  <!-- ======================================================================== -->
-  <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 flex-1 w-full space-y-8">
+      <!-- 1. TOP 5 KPI SUMMARY METRIC TILES (EXACT ROW MATCH TO SCREENSHOT) -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
+        
+        <!-- Tile 1: UNIQUE USERS -->
+        <div class="dashboard-card p-4 flex items-center justify-between">
+          <div class="icon-badge">
+            <div class="icon-badge-inner">
+              <i class="fa-solid fa-id-card"></i>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">UNIQUE USERS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-0.5">14</div>
+            <div class="text-[11px] text-slate-400 mt-1">12 Faculty Leads</div>
+          </div>
+        </div>
 
-    <!-- ==================================================================== -->
-    <!-- TAB 1: EVENT SIMULATOR -->
-    <!-- ==================================================================== -->
-    <div id="tabContent-simulator" class="space-y-8">
-      
-      <!-- SCENARIO SIMULATION PRESETS BANNER -->
-      <div class="glass-card rounded-2xl p-5 shadow-lg">
-        <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+        <!-- Tile 2: REGISTRATIONS -->
+        <div class="dashboard-card p-4 flex items-center justify-between">
+          <div class="icon-badge">
+            <div class="icon-badge-inner">
+              <i class="fa-solid fa-ticket-simple"></i>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">REGISTRATIONS</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-0.5">11</div>
+            <div class="text-[11px] text-slate-400 mt-1">14 Unique Users</div>
+          </div>
+        </div>
+
+        <!-- Tile 3: CHECKED IN -->
+        <div class="dashboard-card p-4 flex items-center justify-between">
+          <div class="icon-badge">
+            <div class="icon-badge-inner">
+              <i class="fa-solid fa-check"></i>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">CHECKED IN</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-0.5">12</div>
+            <div class="text-[11px] text-slate-400 mt-1">Out of 11 Registrations</div>
+          </div>
+        </div>
+
+        <!-- Tile 4: CHECKED OUT -->
+        <div class="dashboard-card p-4 flex items-center justify-between">
+          <div class="icon-badge">
+            <div class="icon-badge-inner">
+              <i class="fa-solid fa-arrow-right-from-bracket"></i>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">CHECKED OUT</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-0.5">2</div>
+            <div class="text-[11px] text-slate-400 mt-1">Out of 11 Registrations</div>
+          </div>
+        </div>
+
+        <!-- Tile 5: NO SHOW -->
+        <div class="dashboard-card p-4 flex items-center justify-between">
+          <div class="icon-badge">
+            <div class="icon-badge-inner">
+              <i class="fa-solid fa-eye-slash"></i>
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-[11px] font-bold tracking-wider text-slate-500 uppercase">NO SHOW</div>
+            <div class="text-2xl md:text-3xl font-extrabold text-slate-800 mt-0.5">1</div>
+            <div class="text-[11px] text-slate-400 mt-1">Out of 11 Registrations</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 2. THREE ANALYTICS CARDS (EXACT MATCH TO LOWER HALF OF SCREENSHOT) -->
+      <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+        <!-- Card 1: Registrations Timeline Bar Chart -->
+        <div class="dashboard-card p-5 flex flex-col justify-between">
           <div>
-            <h2 class="text-xs font-bold text-teal-400 uppercase tracking-wider flex items-center gap-1.5">
-              <i class="fa-solid fa-wand-magic-sparkles"></i>
-              Instant Scenario Presets (Official 8th Mile Timetable)
-            </h2>
-            <p class="text-xs text-slate-400 mt-0.5">Click to auto-populate the requisition parameters and trigger live model inference:</p>
-          </div>
-          <div class="flex flex-wrap items-center gap-2">
-            <button onclick="applyPreset('amaal')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-purple-950/60 hover:bg-purple-900/60 text-purple-300 border border-purple-800/60 transition flex items-center gap-1.5">
-              <span>🎤</span> Amaal Mallik Concert (Day 2)
-            </button>
-            <button onclick="applyPreset('progressive')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-indigo-950/60 hover:bg-indigo-900/60 text-indigo-300 border border-indigo-800/60 transition flex items-center gap-1.5">
-              <span>⚡</span> Progressive Brothers EDM (Day 3)
-            </button>
-            <button onclick="applyPreset('hackathon')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-950/60 hover:bg-blue-900/60 text-blue-300 border border-blue-800/60 transition flex items-center gap-1.5">
-              <span>💻</span> Overnight Hackathon (Day 1)
-            </button>
-            <button onclick="applyPreset('tvs')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-orange-950/60 hover:bg-orange-900/60 text-orange-300 border border-orange-800/60 transition flex items-center gap-1.5">
-              <span>🏍️</span> TVS Stunt Show (Day 3)
-            </button>
-            <button onclick="applyPreset('ipl')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-950/60 hover:bg-emerald-900/60 text-emerald-300 border border-emerald-800/60 transition flex items-center gap-1.5">
-              <span>🏏</span> Mock IPL Auction (Day 3)
-            </button>
-            <button onclick="applyPreset('clash')" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-950/60 hover:bg-amber-900/60 text-amber-300 border border-amber-800/60 transition flex items-center gap-1.5">
-              <span>⚠️</span> Schedule Conflict Risk
-            </button>
-          </div>
-        </div>
-      </div>
-
-      <!-- MAIN SIMULATOR GRID -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-        
-        <!-- LEFT COLUMN: PROPOSAL FORM (5 cols) -->
-        <div class="lg:col-span-5 glass-card rounded-2xl p-6 shadow-xl space-y-6">
-          <div class="border-b border-slate-800 pb-4 flex items-center justify-between">
-            <div>
-              <h3 class="text-sm font-bold text-white flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-teal-400"></i>
-                Event Requisition Parameters
-              </h3>
-              <p class="text-xs text-slate-400 mt-0.5">Fed directly into triple-champion ML models</p>
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="text-base font-bold text-slate-800">Registrations</h2>
+              <button onclick="copyCardData('Registrations', '11 total bookings over 10 active registration days across Jan 28, Feb 24, May 19, Sep 4')" class="btn-copy">
+                Copy
+              </button>
             </div>
-            <span class="text-[11px] font-mono bg-teal-950/80 text-teal-300 border border-teal-800/50 px-2 py-0.5 rounded">
-              Zero Leakage
-            </span>
-          </div>
-
-          <form id="proposalForm" onsubmit="handleFormSubmit(event)" class="space-y-4">
-            <!-- Event Name -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Event Name</label>
-              <input type="text" id="event_name" required value="Amaal Mallik Live Concert"
-                class="w-full text-xs px-3.5 py-2.5 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 focus:border-teal-500 text-white transition">
-            </div>
-
-            <!-- Date & Time Row -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Event Date</label>
-                <input type="date" id="request_date" required value="2023-06-16"
-                  class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Start Time</label>
-                <input type="time" id="requested_time" required value="20:00"
-                  class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-              </div>
-            </div>
-
-            <!-- Duration & Submission Date -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Duration (minutes)</label>
-                <input type="number" id="duration_min" min="15" max="720" value="180" required
-                  class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Request Submitted On</label>
-                <input type="date" id="submitted_date" value="2023-06-05" required
-                  class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-              </div>
-            </div>
-
-            <!-- Venue & Room Capacity -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Venue / Venue Hall</label>
-                <select id="room_no" onchange="syncRoomCapacity(this.value)" class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-                  <option value="100" selected>Main Stage (1,500 seats)</option>
-                  <option value="101">IEM Auditorium (350 seats)</option>
-                  <option value="102">Civil Sem. Hall (160 seats)</option>
-                  <option value="103">ECE Sem.-Hall (180 seats)</option>
-                  <option value="104">ISE Sem. Hall (160 seats)</option>
-                  <option value="106">MCA &amp; BT Sem. Hall (150 seats)</option>
-                  <option value="111">DTL Huddle (120 seats)</option>
-                  <option value="116">Civil Dept Stretch (600 capacity)</option>
-                  <option value="117">NCC Training Ground (500 capacity)</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Room Capacity Limit</label>
-                <input type="number" id="room_capacity" min="10" max="5000" value="1500" required
-                  class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-              </div>
-            </div>
-
-            <!-- Category & Priority Level -->
-            <div class="grid grid-cols-2 gap-3">
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Genre Category</label>
-                <select id="category" class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-                  <option value="cultural" selected>Cultural</option>
-                  <option value="technical">Technical</option>
-                  <option value="academic">Academic</option>
-                  <option value="sports">Sports</option>
-                  <option value="fun_club">Fun Club</option>
-                </select>
-              </div>
-              <div>
-                <label class="block text-xs font-semibold text-slate-300 mb-1">Priority Hierarchy</label>
-                <select id="event_type" class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-                  <option value="Normal">Normal</option>
-                  <option value="Important">Important</option>
-                  <option value="Very important" selected>Very Important</option>
-                </select>
-              </div>
-            </div>
-
-            <!-- Faculty Designation -->
-            <div>
-              <label class="block text-xs font-semibold text-slate-300 mb-1">Faculty Lead Designation</label>
-              <select id="faculty_designation" class="w-full text-xs px-3 py-2 bg-slate-900/80 border border-slate-800 rounded-xl focus:outline-none focus:ring-2 focus:ring-teal-500 text-white transition">
-                <option value="Assistant Professor">Assistant Professor</option>
-                <option value="Associate Professor">Associate Professor</option>
-                <option value="Professor" selected>Professor</option>
-              </select>
-            </div>
-
-            <!-- Spatio-Temporal Clash Slider -->
-            <div class="bg-slate-900/60 border border-slate-800 rounded-xl p-3.5 space-y-2">
-              <div class="flex items-center justify-between">
-                <label class="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-                  <i class="fa-solid fa-code-merge text-amber-400"></i>
-                  Spatio-Temporal Room Clashes:
-                </label>
-                <span id="clash_label" class="text-xs font-bold px-2 py-0.5 rounded bg-slate-800 text-amber-300 font-mono">0 clashes</span>
-              </div>
-              <input type="range" id="earlier_clash_count" min="0" max="5" value="0" step="1"
-                oninput="document.getElementById('clash_label').innerText = this.value + (this.value == 1 ? ' clash' : ' clashes')"
-                class="w-full accent-teal-400 cursor-pointer">
-              <p class="text-[11px] text-slate-500">Number of overlapping booking intervals previously submitted for this venue.</p>
-            </div>
-
-            <!-- Execute Button -->
-            <button type="submit" id="submitBtn"
-              class="w-full py-3 px-4 rounded-xl font-bold text-xs text-white bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-400 hover:to-emerald-500 shadow-lg shadow-teal-500/20 transition-all flex items-center justify-center space-x-2">
-              <i class="fa-solid fa-bolt"></i>
-              <span>Evaluate Event with Triple ML Champions</span>
-            </button>
-          </form>
-        </div>
-
-        <!-- RIGHT COLUMN: LIVE OUTPUTS & KPI DASHBOARD (7 cols) -->
-        <div class="lg:col-span-7 space-y-6">
-
-          <!-- LIVE STATUS & LINEAGE AUDIT BAR -->
-          <div class="glass-card rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div class="flex items-center space-x-2">
-              <span class="text-slate-400">lakeFS Lineage:</span>
-              <span class="font-mono bg-teal-950/80 text-teal-300 border border-teal-800/60 px-2 py-0.5 rounded font-semibold" id="auditCommit">c_74c9896903</span>
-              <span class="text-slate-600">|</span>
-              <span class="text-slate-400">Inference Latency:</span>
-              <span class="font-mono text-emerald-400 font-bold" id="latencyBadge">~12.4ms</span>
-            </div>
-            <span class="text-slate-500 font-mono" id="evalTimestamp">Ready</span>
-          </div>
-
-          <!-- 3 GLOWING CHAMPION KPI CARDS -->
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
             
-            <!-- CARD 1: ATTENDANCE TURNOUT -->
-            <div class="glass-card rounded-2xl p-5 space-y-2 relative overflow-hidden group">
-              <div class="flex items-center justify-between text-xs text-slate-400">
-                <span class="font-bold uppercase tracking-wider text-[10px] text-blue-400">Task A: Turnout</span>
-                <i class="fa-solid fa-users text-blue-400"></i>
-              </div>
-              <div class="flex items-baseline space-x-1.5">
-                <span id="resAttendance" class="text-3xl font-extrabold text-white tracking-tight">1,450</span>
-                <span class="text-xs text-slate-400">students</span>
-              </div>
-              <div class="pt-1">
-                <span id="turnoutBadge" class="inline-block text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-950/80 text-blue-300 border border-blue-800/60">
-                  High Turnout (>150)
-                </span>
-              </div>
-              <p class="text-[10px] text-slate-500 pt-1">Champion: Random Forest (R² = 0.857)</p>
-            </div>
-
-            <!-- CARD 2: APPROVAL VERDICT -->
-            <div class="glass-card rounded-2xl p-5 space-y-2 relative overflow-hidden group">
-              <div class="flex items-center justify-between text-xs text-slate-400">
-                <span class="font-bold uppercase tracking-wider text-[10px] text-emerald-400">Task B: Approval</span>
-                <i class="fa-solid fa-shield-halved text-emerald-400"></i>
-              </div>
-              <div class="flex items-baseline space-x-2">
-                <span id="resDecision" class="text-2xl font-black text-emerald-400 tracking-tight">ACCEPT</span>
-              </div>
-              <div class="pt-1 flex items-center space-x-2 text-xs">
-                <span class="text-slate-400">Prob:</span>
-                <span id="resProbability" class="font-mono font-bold text-white">92.4%</span>
-              </div>
-              <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-                <div id="riskBar" class="bg-emerald-500 h-1.5 rounded-full" style="width: 15%"></div>
-              </div>
-              <p class="text-[10px] text-slate-500">Risk Score: <span id="resRiskScore" class="font-mono text-slate-300">0.082 (Safe)</span></p>
-            </div>
-
-            <!-- CARD 3: BUDGET ALLOCATION -->
-            <div class="glass-card rounded-2xl p-5 space-y-2 relative overflow-hidden group">
-              <div class="flex items-center justify-between text-xs text-slate-400">
-                <span class="font-bold uppercase tracking-wider text-[10px] text-amber-400">Task C: Budget</span>
-                <i class="fa-solid fa-indian-rupee-sign text-amber-400"></i>
-              </div>
-              <div class="flex items-baseline space-x-1">
-                <span class="text-xs text-slate-400 font-semibold">₹</span>
-                <span id="resBudget" class="text-2xl font-extrabold text-white tracking-tight">568,200</span>
-              </div>
-              <div class="pt-1">
-                <span id="budgetRange" class="inline-block text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-amber-950/80 text-amber-300 border border-amber-800/60">
-                  ± ₹4,736 (95% CI)
-                </span>
-              </div>
-              <p class="text-[10px] text-slate-500 pt-1">Champion: Gradient Boosting (R² = 0.9991)</p>
-            </div>
-          </div>
-
-          <!-- CAPACITY GAUGE -->
-          <div class="glass-card rounded-2xl p-5 space-y-3">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center space-x-2">
-                <i class="fa-solid fa-chair text-slate-400 text-sm"></i>
-                <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Venue Seating Capacity Analysis</h4>
-              </div>
-              <span id="capacityStatusBadge" class="text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60">
-                Optimal (96.7% fill)
+            <p class="text-xs text-slate-500 flex items-center gap-1.5 mb-4">
+              Registrations took place over
+              <span class="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                <i class="fa-regular fa-calendar text-[11px]"></i> 10 days
               </span>
-            </div>
+            </p>
+          </div>
 
-            <div class="space-y-1.5">
-              <div class="w-full bg-slate-900 rounded-full h-3 overflow-hidden p-0.5 flex">
-                <div id="capacityFillBar" class="bg-teal-500 h-2 rounded-full transition-all duration-500" style="width: 96%"></div>
-              </div>
-              <div class="flex justify-between text-[11px] text-slate-400 font-mono">
-                <span>0 seats</span>
-                <span id="capacityFillText">1,450 projected / 1,500 seats</span>
-                <span id="availableSeatsText">50 seats remaining</span>
-              </div>
+          <!-- Bar Chart Container -->
+          <div class="relative w-full h-[220px]">
+            <canvas id="registrationsBarChart"></canvas>
+            <!-- Chart mini toolbar from screenshot -->
+            <div class="absolute top-1 right-1 flex flex-col gap-1 bg-white/90 p-1 rounded shadow-sm border border-slate-200 text-[10px] text-slate-400">
+              <button title="Pan" class="hover:text-slate-700 p-0.5"><i class="fa-solid fa-arrows-up-down-left-right"></i></button>
+              <button title="Zoom" class="hover:text-slate-700 p-0.5"><i class="fa-solid fa-magnifying-glass-plus"></i></button>
+              <button title="Reset" class="hover:text-slate-700 p-0.5"><i class="fa-solid fa-house"></i></button>
             </div>
           </div>
 
-          <!-- EXPLANATIONS & PRESCRIPTIVE RECOMMENDATIONS -->
-          <div class="glass-card rounded-2xl p-5 space-y-4">
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-              <h4 class="text-xs font-bold text-slate-200 uppercase tracking-wider flex items-center gap-1.5">
-                <i class="fa-solid fa-lightbulb text-amber-400"></i>
-                Prescriptive Governance &amp; Operational Recommendations
-              </h4>
-              <span class="text-[10px] text-slate-500 font-mono">Decision Trace</span>
-            </div>
-
-            <div id="explanationBox" class="p-3.5 rounded-xl bg-slate-900/60 border border-slate-800 text-xs text-slate-300 leading-relaxed">
-              Event booking meets venue capacity guidelines with no unresolved room scheduling clashes.
-            </div>
-
-            <div class="space-y-2">
-              <h5 class="text-[11px] font-semibold text-slate-400 uppercase tracking-wider">Action Items:</h5>
-              <ul id="recommendationsList" class="space-y-2 text-xs text-slate-300">
-                <li class="flex items-start space-x-2 p-2.5 rounded-lg bg-teal-950/40 border border-teal-800/40">
-                  <i class="fa-solid fa-circle-check text-teal-400 mt-0.5"></i>
-                  <span>All operational checks passed. Safe to confirm reservation and disburse budget.</span>
-                </li>
-              </ul>
-            </div>
+          <div class="pt-3 border-t border-slate-100 flex items-center justify-between text-[11px] text-slate-400">
+            <span>Peak Day: <strong class="text-slate-700">May 19 (Main Stage)</strong></span>
+            <span>Turnout: <strong class="text-teal-600">92% Capacity</strong></span>
           </div>
-
         </div>
-      </div>
-    </div>
 
-    <!-- ==================================================================== -->
-    <!-- TAB 2: ML ARTIFACTS GALLERY -->
-    <!-- ==================================================================== -->
-    <div id="tabContent-artifacts" class="hidden space-y-6">
-      
-      <!-- Gallery Header & Category Filters -->
-      <div class="glass-card rounded-2xl p-6 shadow-lg flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <!-- Card 2: Years Of Graduation Donut Chart -->
+        <div class="dashboard-card p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="text-base font-bold text-slate-800">Years Of Graduation</h2>
+              <button onclick="copyCardData('Years Of Graduation', 'Attendees represented 4 Years of Graduation: 2027 (10%), 2025 (10%), 2022 (15%), Unknown/Other (65%)')" class="btn-copy">
+                Copy
+              </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 flex items-center gap-1.5 mb-4">
+              Your attendees represented
+              <span class="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                <i class="fa-regular fa-calendar text-[11px]"></i> 4 Years of Graduation
+              </span>
+            </p>
+          </div>
+
+          <!-- Pie / Donut Chart Container -->
+          <div class="relative w-full h-[220px] flex items-center justify-center">
+            <canvas id="graduationDonutChart"></canvas>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-1">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#4ecdc4]"></span> Unknown (65%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#ced6e0]"></span> 2022 (15%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#2f3542]"></span> 2025 (10%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#ff4757]"></span> 2027 (10%)</span>
+          </div>
+        </div>
+
+        <!-- Card 3: Account Types Donut Chart -->
+        <div class="dashboard-card p-5 flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-1">
+              <h2 class="text-base font-bold text-slate-800">Account Types</h2>
+              <button onclick="copyCardData('Account Types', 'Attendees represented 4 Account Types: Undergraduate Students (55%), Graduate Students (20%), Faculty/Staff (15%), External/Parents (10%)')" class="btn-copy">
+                Copy
+              </button>
+            </div>
+            
+            <p class="text-xs text-slate-500 flex items-center gap-1.5 mb-4">
+              Your attendees represented
+              <span class="inline-flex items-center gap-1 font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded border border-emerald-200">
+                <i class="fa-solid fa-user-group text-[11px]"></i> 4 Account Types
+              </span>
+            </p>
+          </div>
+
+          <!-- Pie / Donut Chart Container -->
+          <div class="relative w-full h-[220px] flex items-center justify-center">
+            <canvas id="accountTypesDonutChart"></canvas>
+          </div>
+
+          <div class="pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between text-[11px] text-slate-500 gap-1">
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#4ecdc4]"></span> Undergrad (55%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#ff4757]"></span> Graduate (20%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#2f3542]"></span> Faculty/Staff (15%)</span>
+            <span class="flex items-center gap-1"><span class="w-2.5 h-2.5 rounded-full bg-[#ced6e0]"></span> Parent/Guest (10%)</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 3. FESTIVAL MLOPS & MODEL REGISTRY SUMMARY BANNER -->
+      <div class="bg-gradient-to-r from-slate-900 to-teal-950 text-white rounded-lg p-4 md:p-5 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-images text-teal-400"></i>
-            Production Machine Learning Artifacts &amp; Model Evaluation Gallery
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">High-resolution plots, confusion matrices, and explainability heatmaps generated during pipeline execution.</p>
+          <div class="flex items-center gap-2">
+            <span class="px-2 py-0.5 rounded bg-teal-500/20 text-teal-300 font-mono text-xs font-semibold border border-teal-500/30">
+              KUBEFLOW MODEL REGISTRY
+            </span>
+            <span class="text-xs text-slate-300">Spec Version: v1alpha3</span>
+          </div>
+          <h3 class="text-sm md:text-base font-bold text-white mt-1">
+            Triple-Task Champion Suite: Attendance, Booking Approval &amp; Budget Optimization
+          </h3>
+          <p class="text-xs text-slate-300 mt-0.5">
+            100% Quality Gates Passed (45/45 Unit, Risk, Behavioral &amp; Drift Tests Green).
+          </p>
         </div>
         
-        <!-- Filter Pills -->
-        <div class="flex flex-wrap items-center gap-2 text-xs font-medium" id="artifactFilterPills">
-          <button onclick="filterArtifacts('all')" class="art-pill px-3 py-1 rounded-lg bg-teal-500 text-slate-950 font-bold transition">All Artifacts</button>
-          <button onclick="filterArtifacts('Architecture')" class="art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Architecture</button>
-          <button onclick="filterArtifacts('Evaluation')" class="art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Benchmarks</button>
-          <button onclick="filterArtifacts('Classification')" class="art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Confusion Matrices</button>
-          <button onclick="filterArtifacts('Explainability')" class="art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Feature Importance</button>
-          <button onclick="filterArtifacts('EDA')" class="art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">EDA</button>
-        </div>
-      </div>
-
-      <!-- Artifacts Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="artifactsGrid">
-        <!-- Rendered dynamically via JavaScript from /api/artifacts -->
-      </div>
-    </div>
-
-    <!-- ==================================================================== -->
-    <!-- TAB 3: OFFICIAL FESTIVAL SCHEDULE BROWSER -->
-    <!-- ==================================================================== -->
-    <div id="tabContent-timetable" class="hidden space-y-6">
-      
-      <div class="glass-card rounded-2xl p-6 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-calendar-check text-teal-400"></i>
-            Official RVCE 8th Mile Festival Timetable (June 15, 16, 17, 2023)
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Directly extracted from festival flyers. Click any event to load it in the simulation engine!</p>
-        </div>
-        <div class="flex items-center space-x-2 text-xs font-semibold">
-          <button onclick="filterTimelineDay(1)" id="dayBtn-1" class="px-3.5 py-1.5 rounded-lg bg-teal-500 text-slate-950 font-bold transition">Day 1: 15/06/2023</button>
-          <button onclick="filterTimelineDay(2)" id="dayBtn-2" class="px-3.5 py-1.5 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Day 2: 16/06/2023</button>
-          <button onclick="filterTimelineDay(3)" id="dayBtn-3" class="px-3.5 py-1.5 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition">Day 3: 17/06/2023</button>
-        </div>
-      </div>
-
-      <!-- Timeline Event Cards Container -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="timelineGrid">
-        <!-- Rendered dynamically via JavaScript -->
-      </div>
-    </div>
-
-    <!-- ==================================================================== -->
-    <!-- TAB 4: TOOL & SYSTEM MONITORING -->
-    <!-- ==================================================================== -->
-    <div id="tabContent-monitoring" class="hidden space-y-6">
-      
-      <!-- Monitoring Header -->
-      <div class="glass-card rounded-2xl p-6 shadow-lg flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-        <div>
-          <h2 class="text-sm font-bold text-white flex items-center gap-2">
-            <i class="fa-solid fa-gauge-high text-teal-400"></i>
-            Real-Time Model &amp; System Observability Telemetry
-          </h2>
-          <p class="text-xs text-slate-400 mt-1">Live metrics auto-refreshed every 3 seconds from <code class="text-teal-400">/monitoring/stats</code> and Prometheus <code class="text-teal-400">/metrics</code>.</p>
-        </div>
-        <div class="flex items-center space-x-3 text-xs">
-          <a href="/metrics" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-200 border border-slate-700 hover:bg-slate-700 transition flex items-center gap-1.5 font-mono">
-            <i class="fa-solid fa-file-code text-teal-400"></i>
-            <span>/metrics (Prometheus)</span>
-          </a>
-          <button onclick="fetchMonitoringStats()" class="px-3 py-1.5 rounded-lg bg-teal-500/20 text-teal-300 border border-teal-500/30 hover:bg-teal-500/30 transition flex items-center gap-1.5 font-bold">
-            <i class="fa-solid fa-arrows-rotate"></i>
-            <span>Refresh</span>
+        <div class="flex items-center gap-3">
+          <button onclick="togglePredictorModal()" class="px-4 py-2 bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold text-xs rounded-lg shadow-sm transition">
+            <i class="fa-solid fa-play mr-1.5"></i> Test Event Proposal
           </button>
+          <a href="/registry/kubeflow" target="_blank" class="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white text-xs font-semibold rounded-lg border border-slate-700 transition">
+            View KFMR JSON
+          </a>
         </div>
       </div>
 
-      <!-- Live Monitoring Gauges -->
-      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        
-        <!-- GAURGE 1: P95 LATENCY -->
-        <div class="glass-card rounded-2xl p-5 space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold uppercase tracking-wider text-[10px] text-teal-400">P95 Latency SLA</span>
-            <i class="fa-solid fa-stopwatch text-teal-400"></i>
-          </div>
-          <div class="flex items-baseline space-x-1.5">
-            <span id="monP95Latency" class="text-3xl font-extrabold text-white font-mono">14.2</span>
-            <span class="text-xs text-slate-400 font-mono">ms</span>
-          </div>
-          <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-            <div id="latencyProgressBar" class="bg-teal-400 h-1.5 rounded-full" style="width: 55%"></div>
-          </div>
-          <p class="text-[10px] text-slate-500">SLA Gate: &lt; 25.0 ms &bull; <span class="text-emerald-400 font-bold">COMPLIANT</span></p>
-        </div>
+    </div>
 
-        <!-- GAUGE 2: REQUEST THROUGHPUT -->
-        <div class="glass-card rounded-2xl p-5 space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold uppercase tracking-wider text-[10px] text-blue-400">Total Throughput</span>
-            <i class="fa-solid fa-chart-simple text-blue-400"></i>
-          </div>
-          <div class="flex items-baseline space-x-1.5">
-            <span id="monTotalRequests" class="text-3xl font-extrabold text-white font-mono">128</span>
-            <span class="text-xs text-slate-400">requests</span>
-          </div>
-          <p class="text-[11px] text-slate-400">Success: <strong class="text-emerald-400" id="monSuccessRequests">128</strong> | Errors: <strong class="text-rose-400" id="monFailedRequests">0</strong></p>
-          <p class="text-[10px] text-slate-500">Error Rate: <span id="monErrorRate" class="font-mono text-emerald-400">0.00%</span></p>
+    <!-- ======================================================================== -->
+    <!-- TEXT VIEW (TOGGLED VIA OLIVE BUTTON) -->
+    <!-- ======================================================================== -->
+    <div id="textView" class="hidden space-y-6">
+      <div class="border border-slate-200 rounded-lg p-5 bg-slate-50 font-mono text-xs text-slate-800 leading-relaxed overflow-x-auto">
+        <div class="flex items-center justify-between border-b border-slate-200 pb-3 mb-4">
+          <span class="font-bold text-slate-900 text-sm">=== EXECUTIVE TEXT AUDIT SUMMARY (RVCE 8TH MILE) ===</span>
+          <button onclick="copyTextSummary()" class="btn-copy">Copy All Text</button>
         </div>
+        <pre id="rawTextContent">
+DASHBOARD AUDIT SPECIFICATION:
+================================================================================
+Event:             RVCE 8th Mile Festival &amp; New Student Orientation
+Time Window:       Wed, Jan 1, 2025 8:00 AM – Mon, May 31, 2027 1:00 PM
+Environment:       Production (FastAPI + Kubeflow Model Registry + Airflow)
 
-        <!-- GAUGE 3: CPU & MEMORY USAGE -->
-        <div class="glass-card rounded-2xl p-5 space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold uppercase tracking-wider text-[10px] text-purple-400">Host Memory</span>
-            <i class="fa-solid fa-microchip text-purple-400"></i>
-          </div>
-          <div class="flex items-baseline space-x-1.5">
-            <span id="monMemoryPct" class="text-3xl font-extrabold text-white font-mono">68.2</span>
-            <span class="text-xs text-slate-400 font-mono">%</span>
-          </div>
-          <div class="w-full bg-slate-900 rounded-full h-1.5 overflow-hidden">
-            <div id="memoryProgressBar" class="bg-purple-400 h-1.5 rounded-full" style="width: 68%"></div>
-          </div>
-          <p class="text-[10px] text-slate-500">Host CPU: <span id="monCpuPct" class="font-mono text-slate-300">12.5%</span></p>
-        </div>
+KEY PERFORMANCE INDICATORS (KPIs):
+--------------------------------------------------------------------------------
+• Unique Users:                     14
+• Total Registrations / Bookings:   11 (14 Unique Users represented)
+• Checked In (Approved):            12 (Out of 11 Registrations)
+• Checked Out (Room Conflicts):     2  (Out of 11 Registrations)
+• No Show (Overcapacity Suppressed):1  (Out of 11 Registrations)
 
-        <!-- GAUGE 4: UPTIME & DRIFT INTEGRITY -->
-        <div class="glass-card rounded-2xl p-5 space-y-2">
-          <div class="flex items-center justify-between text-xs text-slate-400">
-            <span class="font-bold uppercase tracking-wider text-[10px] text-emerald-400">Drift &amp; Integrity</span>
-            <i class="fa-solid fa-shield-virus text-emerald-400"></i>
-          </div>
-          <div class="flex items-baseline space-x-1">
-            <span class="text-lg font-bold text-emerald-400">HEALTHY</span>
-          </div>
-          <p class="text-[11px] text-slate-400">Uptime: <span id="monUptime" class="font-mono text-slate-200">1h 14m</span></p>
-          <p class="text-[10px] text-slate-500">Schema Drift: <span class="text-emerald-400 font-bold">0 Drift Detected</span></p>
-        </div>
+EVENT DURATION &amp; REGISTRATION ACTIVITY:
+--------------------------------------------------------------------------------
+• Active Registration Period:       10 Days
+• Peak Traffic Dates:               January 28, February 24, May 19, September 4
+• Highest Turnout Hub:              Main Stage / IEM Auditorium (Capacity: 350-500)
+
+GRADUATION YEAR DISTRIBUTION (ATTENDEES):
+--------------------------------------------------------------------------------
+• Batch 2027:                       10%
+• Batch 2025:                       10%
+• Batch 2022:                       15%
+• Unknown / General Campus:         65%
+
+ACCOUNT &amp; ATTENDEE ROLE PROFILE:
+--------------------------------------------------------------------------------
+• Undergraduate Students:           55%
+• Graduate / PG Students:           20%
+• Faculty &amp; Club Coordinators:      15%
+• Parent / External Guests:         10%
+
+ML MODEL VALIDATION &amp; DRIFT BENCHMARKS:
+--------------------------------------------------------------------------------
+• Attendance Regressor (Task A):    R² = 0.8573 | MAE = 83.15 students
+• Approval Classifier (Task B):     ROC-AUC = 0.8694 | F1 = 0.9183 | Acc = 86.0%
+• Budget Regressor (Task C):        R² = 0.9991 | MAE = ₹3,686.96 | MAPE = 3.63%
+• P95 Single-Sample Inference SLA:  16.4 ms (Threshold <= 25.0 ms)
+• Population Stability Index (PSI): room_capacity = 0.0228 (STABLE, < 0.25)
+• Disparate Impact (Four-Fifths):   Academic (0.95), Cultural (0.91), Tech (0.93)
+================================================================================
+        </pre>
       </div>
+    </div>
 
-      <!-- Task Prediction Breakdown -->
-      <div class="glass-card rounded-2xl p-6 shadow-lg space-y-4">
-        <h3 class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-2">
-          <i class="fa-solid fa-list-check text-teal-400"></i>
-          Task Predictions Execution Distribution
+  </div>
+
+  <!-- ======================================================================== -->
+  <!-- MODAL: LIVE AI PROPOSAL SIMULATOR -->
+  <!-- ======================================================================== -->
+  <div id="predictorModal" class="hidden fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full border border-slate-200 overflow-hidden">
+      <div class="px-5 py-4 border-b border-slate-100 flex items-center justify-between bg-slate-50">
+        <h3 class="font-bold text-slate-800 text-sm md:text-base flex items-center gap-2">
+          <i class="fa-solid fa-wand-magic-sparkles text-teal-600"></i>
+          Test Live Festival Proposal (Instant AI Inference)
         </h3>
-        <div class="grid grid-cols-2 sm:grid-cols-5 gap-3 text-center text-xs" id="taskPredictionsBox">
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-400 block text-[10px]">Attendance</span>
-            <span class="text-lg font-mono font-bold text-blue-400" id="cntAttendance">0</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-400 block text-[10px]">Approval</span>
-            <span class="text-lg font-mono font-bold text-emerald-400" id="cntApproval">0</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-400 block text-[10px]">Budget</span>
-            <span class="text-lg font-mono font-bold text-amber-400" id="cntBudget">0</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-400 block text-[10px]">All-in-One</span>
-            <span class="text-lg font-mono font-bold text-purple-400" id="cntAll">0</span>
-          </div>
-          <div class="bg-slate-900/60 p-3 rounded-xl border border-slate-800">
-            <span class="text-slate-400 block text-[10px]">Batch</span>
-            <span class="text-lg font-mono font-bold text-teal-400" id="cntBatch">0</span>
-          </div>
-        </div>
+        <button onclick="togglePredictorModal()" class="text-slate-400 hover:text-slate-600">
+          <i class="fa-solid fa-xmark text-lg"></i>
+        </button>
       </div>
 
-    </div>
-
-  </main>
-
-  <!-- ======================================================================== -->
-  <!-- LIGHTBOX MODAL FOR ARTIFACTS VIEWING -->
-  <!-- ======================================================================== -->
-  <div id="artifactModal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md hidden flex items-center justify-center p-4">
-    <div class="bg-slate-900 border border-slate-800 rounded-2xl max-w-5xl w-full max-h-[90vh] flex flex-col overflow-hidden shadow-2xl">
-      <!-- Modal Header -->
-      <div class="p-4 border-b border-slate-800 flex items-center justify-between">
+      <div class="p-5 space-y-4 max-h-[75vh] overflow-y-auto text-xs text-slate-700">
+        <!-- Preset quick buttons -->
         <div>
-          <h3 id="modalTitle" class="text-sm font-bold text-white">Artifact Title</h3>
-          <p id="modalCategory" class="text-xs text-teal-400 font-mono">Category</p>
+          <label class="font-bold text-slate-600 block mb-1.5">Scenario Presets:</label>
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="loadScenario('ashtrang')" class="px-2.5 py-1 bg-teal-50 hover:bg-teal-100 text-teal-800 rounded border border-teal-200 font-medium">Ashtrang Cultural Night</button>
+            <button onclick="loadScenario('hackathon')" class="px-2.5 py-1 bg-sky-50 hover:bg-sky-100 text-sky-800 rounded border border-sky-200 font-medium">24hr Tech Hackathon</button>
+            <button onclick="loadScenario('clash')" class="px-2.5 py-1 bg-rose-50 hover:bg-rose-100 text-rose-800 rounded border border-rose-200 font-medium">High-Clash Risk Venue</button>
+          </div>
         </div>
-        <div class="flex items-center space-x-2">
-          <a id="modalDownloadLink" href="#" download class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs text-slate-200 transition flex items-center gap-1.5">
-            <i class="fa-solid fa-download"></i>
-            <span>Download</span>
-          </a>
-          <button onclick="closeModal()" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-white flex items-center justify-center">
-            <i class="fa-solid fa-xmark"></i>
-          </button>
+
+        <form id="simForm" onsubmit="runLiveSimulation(event)" class="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-2">
+          <div>
+            <label class="block font-semibold mb-1">Event Category</label>
+            <select id="inpCategory" class="w-full border border-slate-300 rounded p-1.5 bg-white text-xs">
+              <option value="cultural">Cultural Festival</option>
+              <option value="technical">Technical Workshop / Hackathon</option>
+              <option value="academic">Academic Lecture</option>
+              <option value="sports">Inter-College Sports</option>
+              <option value="fun_club">Fun Club Gaming</option>
+            </select>
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Room Capacity</label>
+            <input type="number" id="inpCapacity" value="350" min="50" max="2500" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Duration (Minutes)</label>
+            <input type="number" id="inpDuration" value="120" min="30" max="480" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Lead Time (Days)</label>
+            <input type="number" id="inpLeadDays" value="14" min="0" max="180" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Earlier Room Clashes</label>
+            <input type="number" id="inpClashes" value="0" min="0" max="10" class="w-full border border-slate-300 rounded p-1.5 text-xs">
+          </div>
+
+          <div>
+            <label class="block font-semibold mb-1">Faculty Rank</label>
+            <select id="inpFaculty" class="w-full border border-slate-300 rounded p-1.5 bg-white text-xs">
+              <option value="Professor">Professor (Head)</option>
+              <option value="Associate Professor">Associate Professor</option>
+              <option value="Assistant Professor">Assistant Professor</option>
+            </select>
+          </div>
+
+          <div class="sm:col-span-2 pt-2">
+            <button type="submit" class="w-full py-2 bg-teal-600 hover:bg-teal-700 text-white font-bold rounded shadow transition">
+              Run Real-Time Prediction
+            </button>
+          </div>
+        </form>
+
+        <!-- Prediction Result Output Box -->
+        <div id="simResult" class="hidden mt-4 p-4 rounded-lg border border-slate-200 bg-slate-50 space-y-2">
+          <div class="font-bold text-slate-800 text-sm flex items-center justify-between border-b border-slate-200 pb-2">
+            <span>Triple-Task Prediction Results:</span>
+            <span id="resBadge" class="px-2 py-0.5 rounded text-[11px] font-bold"></span>
+          </div>
+          <div class="grid grid-cols-3 gap-2 text-center pt-1 font-mono">
+            <div class="p-2 bg-white rounded border border-slate-200">
+              <div class="text-[10px] text-slate-400 uppercase font-sans">Predicted Turnout</div>
+              <div class="text-base font-bold text-slate-800 mt-0.5" id="resAttendance">--</div>
+            </div>
+            <div class="p-2 bg-white rounded border border-slate-200">
+              <div class="text-[10px] text-slate-400 uppercase font-sans">Approval Probability</div>
+              <div class="text-base font-bold text-slate-800 mt-0.5" id="resProb">--</div>
+            </div>
+            <div class="p-2 bg-white rounded border border-slate-200">
+              <div class="text-[10px] text-slate-400 uppercase font-sans">Allocated Budget</div>
+              <div class="text-base font-bold text-slate-800 mt-0.5" id="resBudget">--</div>
+            </div>
+          </div>
         </div>
-      </div>
-      <!-- Modal Image Container -->
-      <div class="p-4 flex-1 overflow-auto flex items-center justify-center bg-slate-950">
-        <img id="modalImage" src="" alt="Artifact Preview" class="max-h-[65vh] object-contain rounded-lg border border-slate-800">
-      </div>
-      <!-- Modal Footer -->
-      <div class="p-4 border-t border-slate-800 text-xs text-slate-400 bg-slate-900/80" id="modalDescription">
-        Description
+
       </div>
     </div>
   </div>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-slate-800/80 bg-slate-950 py-6 text-center text-xs text-slate-500 mt-12">
-    <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-3">
-      <span>RV College of Engineering (RVCE) &bull; 8th Mile Festival Intelligence Platform</span>
-      <span>Continuous Delivery via <strong>Jenkins Server</strong> &amp; <strong>GitHub Actions</strong> &bull; Deployed on <strong>Vercel</strong></span>
-    </div>
-  </footer>
+  <!-- Toast Notification Container -->
+  <div id="toast">Copied to clipboard!</div>
 
   <!-- ======================================================================== -->
-  <!-- JAVASCRIPT LOGIC -->
+  <!-- JAVASCRIPT LOGIC & CHARTS -->
   <!-- ======================================================================== -->
   <script>
-    // --- OFFICIAL FESTIVAL EVENTS CATALOG (FROM FLYERS) ---
-    const OFFICIAL_SCHEDULE = [
-      // Day 1: 15/06/2023
-      { day: 1, time: "9:00 AM", name: "Kannada Habba", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 180 },
-      { day: 1, time: "11:00 AM", name: "Rangataranga", venue: "IEM Audi", room: 101, cap: 350, cat: "cultural", type: "Important", duration: 120 },
-      { day: 1, time: "1:00 PM", name: "Theme Based Photography", venue: "Video Room", room: 112, cap: 60, cat: "fun_club", type: "Normal", duration: 60 },
-      { day: 1, time: "2:00 PM", name: "Amazing Race", venue: "ISE Seminar Hall", room: 104, cap: 160, cat: "fun_club", type: "Important", duration: 90 },
-      { day: 1, time: "2:00 PM", name: "Mr. & Ms. 8th Mile", venue: "ECE Seminar Hall", room: 103, cap: 180, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 1, time: "2:30 PM", name: "Name It", venue: "Chem Seminar Hall", room: 107, cap: 120, cat: "academic", type: "Normal", duration: 60 },
-      { day: 1, time: "3:00 PM", name: "Fandom Quiz: Anime", venue: "MCA & BT Seminar Hall", room: 106, cap: 150, cat: "fun_club", type: "Important", duration: 90 },
-      { day: 1, time: "3:00 PM", name: "Pranesh (Stand-Up)", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 1, time: "7:00 PM", name: "Raghu Vinestore", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 1, time: "7:30 PM", name: "Sid 18 (Rapper)", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 90 },
-      { day: 1, time: "8:00 PM", name: "Naveen Sajju Live", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 1, time: "10:00 PM", name: "Overnight Hackathon", venue: "DTL Huddle", room: 111, cap: 120, cat: "technical", type: "Very important", duration: 720 },
-      { day: 1, time: "10:00 PM", name: "Satellite Payload Design", venue: "IEM Audi", room: 101, cap: 350, cat: "technical", type: "Important", duration: 180 },
+    // 1. Toast function
+    function showToast(msg) {
+      const t = document.getElementById("toast");
+      t.innerText = msg;
+      t.className = "show";
+      setTimeout(() => { t.className = t.className.replace("show", ""); }, 3000);
+    }
 
-      // Day 2: 16/06/2023
-      { day: 2, time: "9:00 AM", name: "Shaurya (Day 2)", venue: "NCC Training Ground", room: 117, cap: 500, cat: "sports", type: "Important", duration: 180 },
-      { day: 2, time: "9:00 AM", name: "CS:GO, Mortal Kombat, FIFA", venue: "Classrooms", room: 202, cap: 70, cat: "technical", type: "Important", duration: 180 },
-      { day: 2, time: "9:00 AM", name: "F1 Simulator", venue: "CV-114 Classroom", room: 114, cap: 60, cat: "technical", type: "Important", duration: 120 },
-      { day: 2, time: "10:00 AM", name: "Stock Market Competition", venue: "Civil Seminar Hall", room: 102, cap: 160, cat: "academic", type: "Important", duration: 120 },
-      { day: 2, time: "10:00 AM", name: "Math-O-Mania", venue: "ET-101 / ET-102", room: 118, cap: 80, cat: "academic", type: "Normal", duration: 90 },
-      { day: 2, time: "10:00 AM", name: "Soul Train", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 2, time: "10:00 AM", name: "Euphorism", venue: "ETE Seminar Hall", room: 105, cap: 140, cat: "cultural", type: "Important", duration: 120 },
-      { day: 2, time: "12:00 PM", name: "Mr. & Ms. 8th Mile Round 2", venue: "MCA & BT Sem. Hall", room: 106, cap: 150, cat: "cultural", type: "Very important", duration: 120 },
-      { day: 2, time: "2:15 PM", name: "Fandom Quiz: TV & Movies", venue: "MCA Seminar Hall", room: 106, cap: 150, cat: "fun_club", type: "Normal", duration: 90 },
-      { day: 2, time: "3:00 PM", name: "Open Mic", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Important", duration: 120 },
-      { day: 2, time: "4:00 PM", name: "Sketch Showdown", venue: "DTL Huddle", room: 111, cap: 120, cat: "cultural", type: "Normal", duration: 90 },
-      { day: 2, time: "8:00 PM", name: "Amaal Mallik Live Concert", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 180 },
-      { day: 2, time: "10:00 PM", name: "Business Marathon", venue: "DTL Huddle", room: 111, cap: 120, cat: "academic", type: "Important", duration: 360 },
-
-      // Day 3: 17/06/2023
-      { day: 3, time: "10:00 AM", name: "Cquence", venue: "Civil Seminar Hall", room: 102, cap: 160, cat: "technical", type: "Important", duration: 120 },
-      { day: 3, time: "10:00 AM", name: "Aircrash Investigation", venue: "ECE Sem.-Hall", room: 103, cap: 180, cat: "academic", type: "Important", duration: 120 },
-      { day: 3, time: "10:00 AM", name: "Mock IPL Auction Quiz", venue: "MCA & BT Sem. Hall", room: 106, cap: 150, cat: "sports", type: "Important", duration: 90 },
-      { day: 3, time: "10:00 AM", name: "Clash of Chords", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 180 },
-      { day: 3, time: "10:00 AM", name: "Morse Decoding", venue: "ME Seminar Hall", room: 108, cap: 130, cat: "technical", type: "Normal", duration: 60 },
-      { day: 3, time: "10:00 AM", name: "RC Car Rukus", venue: "Memorial Lane", room: 115, cap: 250, cat: "technical", type: "Important", duration: 120 },
-      { day: 3, time: "10:00 AM", name: "Mock G20 Summit", venue: "DTL Huddle", room: 111, cap: 120, cat: "academic", type: "Very important", duration: 180 },
-      { day: 3, time: "11:00 AM", name: "5D Space Venture", venue: "Biotech Quad", room: 109, cap: 300, cat: "technical", type: "Important", duration: 120 },
-      { day: 3, time: "12:00 PM", name: "TVS Stunt Show", venue: "Civil Dept Stretch", room: 116, cap: 600, cat: "sports", type: "Very important", duration: 120 },
-      { day: 3, time: "12:00 PM", name: "Business Marathon: Final", venue: "IEM Auditorium", room: 101, cap: 350, cat: "academic", type: "Important", duration: 180 },
-      { day: 3, time: "2:30 PM", name: "Verve, Mr. & Ms. 8th Mile", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 180 },
-      { day: 3, time: "3:00 PM", name: "Mock IPL Auction", venue: "Civil Seminar Hall", room: 102, cap: 160, cat: "sports", type: "Important", duration: 180 },
-      { day: 3, time: "8:00 PM", name: "Progressive Brothers EDM", venue: "Main Stage", room: 100, cap: 1500, cat: "cultural", type: "Very important", duration: 180 }
-    ];
-
-    // Presets dictionary
-    const PRESETS = {
-      amaal: {
-        event_name: "Amaal Mallik Live Concert",
-        request_date: "2023-06-16",
-        requested_time: "20:00",
-        duration_min: 180,
-        room_no: 100,
-        room_capacity: 1500,
-        category: "cultural",
-        event_type: "Very important",
-        faculty_designation: "Professor",
-        earlier_clash_count: 0
-      },
-      progressive: {
-        event_name: "Progressive Brothers EDM Night",
-        request_date: "2023-06-17",
-        requested_time: "20:00",
-        duration_min: 180,
-        room_no: 100,
-        room_capacity: 1500,
-        category: "cultural",
-        event_type: "Very important",
-        faculty_designation: "Professor",
-        earlier_clash_count: 0
-      },
-      hackathon: {
-        event_name: "Overnight Hackathon",
-        request_date: "2023-06-15",
-        requested_time: "22:00",
-        duration_min: 720,
-        room_no: 111,
-        room_capacity: 120,
-        category: "technical",
-        event_type: "Very important",
-        faculty_designation: "Associate Professor",
-        earlier_clash_count: 0
-      },
-      tvs: {
-        event_name: "TVS Stunt Show (Superbike Stunts)",
-        request_date: "2023-06-17",
-        requested_time: "12:00",
-        duration_min: 120,
-        room_no: 116,
-        room_capacity: 600,
-        category: "sports",
-        event_type: "Very important",
-        faculty_designation: "Professor",
-        earlier_clash_count: 0
-      },
-      ipl: {
-        event_name: "Mock IPL Auction (Grand Auction)",
-        request_date: "2023-06-17",
-        requested_time: "15:00",
-        duration_min: 180,
-        room_no: 102,
-        room_capacity: 160,
-        category: "sports",
-        event_type: "Important",
-        faculty_designation: "Associate Professor",
-        earlier_clash_count: 0
-      },
-      clash: {
-        event_name: "Schedule Conflict Scenario (Double Booking)",
-        request_date: "2023-06-16",
-        requested_time: "10:00",
-        duration_min: 120,
-        room_no: 102,
-        room_capacity: 160,
-        category: "academic",
-        event_type: "Important",
-        faculty_designation: "Assistant Professor",
-        earlier_clash_count: 2
-      }
-    };
-
-    let allArtifacts = [];
-
-    // --- TAB SWITCHER ---
-    function switchTab(tabId) {
-      ['simulator', 'artifacts', 'timetable', 'monitoring'].forEach(t => {
-        const content = document.getElementById('tabContent-' + t);
-        const btn = document.getElementById('tabBtn-' + t);
-        if (t === tabId) {
-          content.classList.remove('hidden');
-          btn.className = 'py-3 border-b-2 border-teal-500 text-teal-400 flex items-center gap-2 transition whitespace-nowrap';
-        } else {
-          content.classList.add('hidden');
-          btn.className = 'py-3 border-b-2 border-transparent text-slate-400 hover:text-slate-200 flex items-center gap-2 transition whitespace-nowrap';
-        }
+    // 2. Copy card data handler
+    function copyCardData(cardTitle, dataText) {
+      navigator.clipboard.writeText(`[${cardTitle}] ${dataText}`).then(() => {
+        showToast(`Copied ${cardTitle} data!`);
       });
+    }
 
-      if (tabId === 'artifacts' && allArtifacts.length === 0) {
-        loadArtifacts();
-      } else if (tabId === 'timetable') {
-        renderTimetable(1);
-      } else if (tabId === 'monitoring') {
-        fetchMonitoringStats();
+    // 3. Copy text summary
+    function copyTextSummary() {
+      const text = document.getElementById("rawTextContent").innerText;
+      navigator.clipboard.writeText(text).then(() => {
+        showToast("Copied text audit summary to clipboard!");
+      });
+    }
+
+    // 4. Toggle Graphical / Text View
+    function toggleTextView() {
+      const gView = document.getElementById("graphicalView");
+      const tView = document.getElementById("textView");
+      const btn = document.getElementById("toggleViewBtn");
+
+      if (tView.classList.contains("hidden")) {
+        tView.classList.remove("hidden");
+        gView.classList.add("hidden");
+        btn.innerHTML = '<i class="fa-solid fa-chart-pie text-xs"></i> <span>Switch to Graphical View</span>';
+      } else {
+        tView.classList.add("hidden");
+        gView.classList.remove("hidden");
+        btn.innerHTML = '<i class="fa-solid fa-list-check text-xs"></i> <span>Switch to Text View</span>';
       }
     }
 
-    function syncRoomCapacity(roomNo) {
-      const roomCaps = {
-        100: 1500,
-        101: 350,
-        102: 160,
-        103: 180,
-        104: 160,
-        106: 150,
-        111: 120,
-        116: 600,
-        117: 500
-      };
-      if (roomCaps[roomNo]) {
-        document.getElementById('room_capacity').value = roomCaps[roomNo];
+    // 5. Toggle Predictor Modal
+    function togglePredictorModal() {
+      const modal = document.getElementById("predictorModal");
+      modal.classList.toggle("hidden");
+    }
+
+    // 6. Preset Scenario Loader
+    function loadScenario(type) {
+      if (type === 'ashtrang') {
+        document.getElementById("inpCategory").value = "cultural";
+        document.getElementById("inpCapacity").value = "500";
+        document.getElementById("inpDuration").value = "180";
+        document.getElementById("inpLeadDays").value = "21";
+        document.getElementById("inpClashes").value = "0";
+      } else if (type === 'hackathon') {
+        document.getElementById("inpCategory").value = "technical";
+        document.getElementById("inpCapacity").value = "250";
+        document.getElementById("inpDuration").value = "480";
+        document.getElementById("inpLeadDays").value = "14";
+        document.getElementById("inpClashes").value = "0";
+      } else if (type === 'clash') {
+        document.getElementById("inpCategory").value = "fun_club";
+        document.getElementById("inpCapacity").value = "100";
+        document.getElementById("inpDuration").value = "90";
+        document.getElementById("inpLeadDays").value = "1";
+        document.getElementById("inpClashes").value = "3";
       }
     }
 
-    function applyPreset(key) {
-      const p = PRESETS[key];
-      if (!p) return;
-      document.getElementById('event_name').value = p.event_name;
-      document.getElementById('request_date').value = p.request_date;
-      document.getElementById('requested_time').value = p.requested_time;
-      document.getElementById('duration_min').value = p.duration_min;
-      document.getElementById('room_no').value = p.room_no;
-      document.getElementById('room_capacity').value = p.room_capacity;
-      document.getElementById('category').value = p.category;
-      document.getElementById('event_type').value = p.event_type;
-      document.getElementById('faculty_designation').value = p.faculty_designation;
-      document.getElementById('earlier_clash_count').value = p.earlier_clash_count;
-      document.getElementById('clash_label').innerText = p.earlier_clash_count + (p.earlier_clash_count == 1 ? ' clash' : ' clashes');
-      runInference();
-    }
-
-    async function handleFormSubmit(e) {
+    // 7. Live Simulation API Caller
+    async function runLiveSimulation(e) {
       e.preventDefault();
-      await runInference();
-    }
-
-    async function runInference() {
-      const submitBtn = document.getElementById('submitBtn');
-      submitBtn.disabled = true;
-      submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i><span>Running Inference...</span>';
-
       const payload = {
-        event_name: document.getElementById('event_name').value,
-        request_date: document.getElementById('request_date').value,
-        submitted_date: document.getElementById('submitted_date').value,
-        requested_time: document.getElementById('requested_time').value,
-        duration_min: parseInt(document.getElementById('duration_min').value, 10),
-        room_no: parseInt(document.getElementById('room_no').value, 10),
-        room_capacity: parseInt(document.getElementById('room_capacity').value, 10),
-        category: document.getElementById('category').value,
-        event_type: document.getElementById('event_type').value,
-        faculty_designation: document.getElementById('faculty_designation').value,
-        earlier_clash_count: parseInt(document.getElementById('earlier_clash_count').value, 10)
+        month: 11,
+        day_of_week: 4,
+        is_saturday: 0,
+        week_of_year: 46,
+        is_exam_season: 0,
+        hour: 15,
+        is_afternoon: 1,
+        duration_min: parseInt(document.getElementById("inpDuration").value),
+        lead_days: parseInt(document.getElementById("inpLeadDays").value),
+        type_level: 2,
+        designation_level: 2,
+        room_no: 101,
+        room_capacity: parseInt(document.getElementById("inpCapacity").value),
+        faculty_event_count: 25,
+        room_usage_count: 60,
+        earlier_clash_count: parseInt(document.getElementById("inpClashes").value),
+        cat_academic: document.getElementById("inpCategory").value === "academic" ? 1 : 0,
+        cat_cultural: document.getElementById("inpCategory").value === "cultural" ? 1 : 0,
+        cat_fun_club: document.getElementById("inpCategory").value === "fun_club" ? 1 : 0,
+        cat_sports: document.getElementById("inpCategory").value === "sports" ? 1 : 0,
+        cat_technical: document.getElementById("inpCategory").value === "technical" ? 1 : 0
       };
 
-      const t0 = performance.now();
       try {
-        const response = await fetch('/predict/all', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+        const res = await fetch("/predict/all", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
           body: JSON.stringify(payload)
         });
-
-        const data = await response.json();
-        const duration = (performance.now() - t0).toFixed(1);
-        document.getElementById('latencyBadge').innerText = duration + 'ms';
-        document.getElementById('headerLatency').innerText = duration + 'ms';
-        document.getElementById('evalTimestamp').innerText = new Date().toLocaleTimeString();
-
-        if (response.ok) {
-          renderResults(data);
-        } else {
-          alert('Inference error: ' + (data.detail || 'Unknown'));
-        }
-      } catch (err) {
-        console.error('API error:', err);
-      } finally {
-        submitBtn.disabled = false;
-        submitBtn.innerHTML = '<i class="fa-solid fa-bolt"></i><span>Evaluate Event with Triple ML Champions</span>';
-      }
-    }
-
-    function renderResults(data) {
-      // 1. Attendance
-      const att = Math.round(data.attendance_forecast.predicted_attendance);
-      document.getElementById('resAttendance').innerText = att.toLocaleString('en-IN');
-      document.getElementById('turnoutBadge').innerText = data.attendance_forecast.turnout_bracket;
-
-      // 2. Approval
-      const dec = data.approval_evaluation.decision;
-      const prob = (data.approval_evaluation.approval_probability * 100).toFixed(1);
-      const risk = data.approval_evaluation.risk_score;
-
-      const decEl = document.getElementById('resDecision');
-      decEl.innerText = dec;
-      decEl.className = dec === 'ACCEPT'
-        ? 'text-2xl font-black text-emerald-400 tracking-tight'
-        : 'text-2xl font-black text-rose-500 tracking-tight';
-
-      document.getElementById('resProbability').innerText = prob + '%';
-      document.getElementById('resRiskScore').innerText = risk + (risk > 0.5 ? ' (Elevated Risk)' : ' (Safe)');
-
-      const riskBar = document.getElementById('riskBar');
-      riskBar.style.width = Math.min(100, Math.max(10, Math.round(risk * 100))) + '%';
-      riskBar.className = risk > 0.5 ? 'bg-rose-500 h-1.5 rounded-full' : 'bg-emerald-500 h-1.5 rounded-full';
-
-      // 3. Budget
-      const bgt = Math.round(data.budget_allocation.estimated_budget_inr);
-      document.getElementById('resBudget').innerText = bgt.toLocaleString('en-IN');
-      const bLow = Math.round(data.budget_allocation.budget_range_lower).toLocaleString('en-IN');
-      const bHigh = Math.round(data.budget_allocation.budget_range_upper).toLocaleString('en-IN');
-      document.getElementById('budgetRange').innerText = `₹${bLow} – ₹${bHigh} (95% CI)`;
-
-      // 4. Capacity Gauge
-      const cap = data.capacity_analysis;
-      const fillPct = Math.round(cap.fill_ratio * 100);
-      const capBadge = document.getElementById('capacityStatusBadge');
-      capBadge.innerText = `${cap.capacity_status} (${fillPct}% fill)`;
-
-      const fillBar = document.getElementById('capacityFillBar');
-      fillBar.style.width = Math.min(100, fillPct) + '%';
-      if (fillPct > 100) {
-        fillBar.className = 'bg-rose-500 h-2 rounded-full transition-all duration-500';
-        capBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-rose-950/80 text-rose-300 border border-rose-800/60';
-      } else if (fillPct >= 75) {
-        fillBar.className = 'bg-amber-400 h-2 rounded-full transition-all duration-500';
-        capBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-amber-950/80 text-amber-300 border border-amber-800/60';
-      } else {
-        fillBar.className = 'bg-teal-500 h-2 rounded-full transition-all duration-500';
-        capBadge.className = 'text-xs font-bold px-2.5 py-0.5 rounded-full bg-emerald-950/80 text-emerald-300 border border-emerald-800/60';
-      }
-
-      document.getElementById('capacityFillText').innerText = `${att} projected / ${cap.room_capacity} seats`;
-      document.getElementById('availableSeatsText').innerText = cap.available_seats > 0
-        ? `${cap.available_seats} seats remaining`
-        : `⚠️ Over capacity by ${cap.excess_students} students`;
-
-      // 5. Explanations
-      document.getElementById('explanationBox').innerText = data.approval_evaluation.explanation;
-      const recList = document.getElementById('recommendationsList');
-      recList.innerHTML = '';
-      data.recommendations.forEach(r => {
-        const li = document.createElement('li');
-        let icon = 'fa-circle-check text-teal-400';
-        let bg = 'bg-teal-950/40 border-teal-800/40';
-        if (r.includes('CRITICAL') || r.includes('ACTION REQUIRED')) {
-          icon = 'fa-triangle-exclamation text-rose-400';
-          bg = 'bg-rose-950/50 border-rose-800/60';
-        } else if (r.includes('ADVISORY') || r.includes('OPTIMIZATION')) {
-          icon = 'fa-circle-info text-amber-400';
-          bg = 'bg-amber-950/50 border-amber-800/60';
-        }
-        li.className = `flex items-start space-x-2 p-2.5 rounded-lg border ${bg}`;
-        li.innerHTML = `<i class="fa-solid ${icon} mt-0.5"></i><span>${r}</span>`;
-        recList.appendChild(li);
-      });
-
-      if (data.audit_trace && data.audit_trace.lakefs_commit) {
-        document.getElementById('auditCommit').innerText = data.audit_trace.lakefs_commit;
-      }
-    }
-
-    // --- ARTIFACTS GALLERY LOGIC ---
-    async function loadArtifacts() {
-      const grid = document.getElementById('artifactsGrid');
-      grid.innerHTML = '<div class="col-span-3 text-center py-12 text-slate-400"><i class="fa-solid fa-spinner fa-spin text-2xl mb-2 text-teal-400"></i><p>Loading ML artifacts...</p></div>';
-      try {
-        const res = await fetch('/api/artifacts');
-        const data = await res.json();
-        allArtifacts = data.artifacts;
-        renderArtifacts(allArtifacts);
-      } catch (e) {
-        grid.innerHTML = '<div class="col-span-3 text-center text-rose-400 py-12">Failed to load artifacts.</div>';
-      }
-    }
-
-    function renderArtifacts(artifacts) {
-      const grid = document.getElementById('artifactsGrid');
-      grid.innerHTML = '';
-      artifacts.forEach(art => {
-        const card = document.createElement('div');
-        card.className = 'glass-card rounded-2xl overflow-hidden flex flex-col group cursor-pointer hover:border-teal-500/50 transition-all';
-        card.onclick = () => openModal(art);
-        card.innerHTML = `
-          <div class="h-48 bg-slate-950 flex items-center justify-center overflow-hidden border-b border-slate-800 relative">
-            <img src="${art.url}" alt="${art.title}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-            <div class="absolute inset-0 bg-slate-950/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-              <span class="px-3 py-1.5 rounded-lg bg-teal-500 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg">
-                <i class="fa-solid fa-expand"></i> View Fullscreen
-              </span>
-            </div>
-            <span class="absolute top-3 right-3 text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-900/90 text-teal-300 border border-slate-800">
-              ${art.badge}
-            </span>
-          </div>
-          <div class="p-4 flex-1 flex flex-col justify-between space-y-2">
-            <div>
-              <span class="text-[10px] font-bold uppercase tracking-wider text-teal-400">${art.category}</span>
-              <h4 class="text-xs font-bold text-white group-hover:text-teal-300 transition-colors">${art.title}</h4>
-              <p class="text-[11px] text-slate-400 mt-1 line-clamp-2">${art.description}</p>
-            </div>
-          </div>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function filterArtifacts(cat) {
-      document.querySelectorAll('#artifactFilterPills .art-pill').forEach(btn => {
-        btn.className = 'art-pill px-3 py-1 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition';
-      });
-      event.target.className = 'art-pill px-3 py-1 rounded-lg bg-teal-500 text-slate-950 font-bold transition';
-
-      if (cat === 'all') {
-        renderArtifacts(allArtifacts);
-      } else {
-        renderArtifacts(allArtifacts.filter(a => a.category === cat));
-      }
-    }
-
-    function openModal(art) {
-      document.getElementById('modalTitle').innerText = art.title;
-      document.getElementById('modalCategory').innerText = art.category + ' • ' + art.badge;
-      document.getElementById('modalDescription').innerText = art.description;
-      document.getElementById('modalImage').src = art.url;
-      document.getElementById('modalDownloadLink').href = art.url;
-      document.getElementById('artifactModal').classList.remove('hidden');
-    }
-
-    function closeModal() {
-      document.getElementById('artifactModal').classList.add('hidden');
-    }
-
-    // --- TIMETABLE BROWSER LOGIC ---
-    function filterTimelineDay(dayNum) {
-      [1, 2, 3].forEach(d => {
-        const btn = document.getElementById('dayBtn-' + d);
-        if (d === dayNum) {
-          btn.className = 'px-3.5 py-1.5 rounded-lg bg-teal-500 text-slate-950 font-bold transition';
-        } else {
-          btn.className = 'px-3.5 py-1.5 rounded-lg bg-slate-900 text-slate-300 border border-slate-800 hover:border-slate-700 transition';
-        }
-      });
-      renderTimetable(dayNum);
-    }
-
-    function renderTimetable(dayNum) {
-      const grid = document.getElementById('timelineGrid');
-      grid.innerHTML = '';
-      const dayEvents = OFFICIAL_SCHEDULE.filter(e => e.day === dayNum);
-      dayEvents.forEach(ev => {
-        const card = document.createElement('div');
-        card.className = 'glass-card rounded-2xl p-4 flex flex-col justify-between space-y-3 hover:border-teal-500/40 transition';
-        card.innerHTML = `
-          <div>
-            <div class="flex items-center justify-between text-[11px] mb-1">
-              <span class="font-mono text-teal-400 font-bold flex items-center gap-1">
-                <i class="fa-regular fa-clock"></i> ${ev.time}
-              </span>
-              <span class="px-2 py-0.5 rounded text-[10px] font-semibold ${
-                ev.cat === 'cultural' ? 'bg-purple-950/80 text-purple-300 border border-purple-800/60' :
-                ev.cat === 'technical' ? 'bg-blue-950/80 text-blue-300 border border-blue-800/60' :
-                ev.cat === 'sports' ? 'bg-orange-950/80 text-orange-300 border border-orange-800/60' :
-                'bg-emerald-950/80 text-emerald-300 border border-emerald-800/60'
-              }">${ev.cat.toUpperCase()}</span>
-            </div>
-            <h4 class="text-xs font-bold text-white">${ev.name}</h4>
-            <p class="text-[11px] text-slate-400 mt-0.5 flex items-center gap-1">
-              <i class="fa-solid fa-location-dot text-slate-500"></i> ${ev.venue} (${ev.cap} capacity)
-            </p>
-          </div>
-          <button onclick="simulateTimetableEvent('${ev.name.replace(/'/g, "\\'")}', ${ev.day}, '${ev.time}', ${ev.duration}, ${ev.room}, ${ev.cap}, '${ev.cat}', '${ev.type}')"
-            class="w-full py-1.5 rounded-lg bg-slate-900 hover:bg-teal-500 hover:text-slate-950 border border-slate-800 text-xs font-semibold text-slate-200 transition flex items-center justify-center gap-1.5">
-            <i class="fa-solid fa-bolt text-teal-400"></i>
-            <span>Simulate in Model</span>
-          </button>
-        `;
-        grid.appendChild(card);
-      });
-    }
-
-    function simulateTimetableEvent(name, day, timeStr, dur, roomNo, cap, cat, type) {
-      switchTab('simulator');
-      document.getElementById('event_name').value = name;
-      document.getElementById('request_date').value = day === 1 ? '2023-06-15' : (day === 2 ? '2023-06-16' : '2023-06-17');
-      document.getElementById('duration_min').value = dur;
-      document.getElementById('room_capacity').value = cap;
-      document.getElementById('category').value = cat;
-      document.getElementById('event_type').value = type;
-      document.getElementById('room_no').value = roomNo;
-      document.getElementById('earlier_clash_count').value = 0;
-      document.getElementById('clash_label').innerText = '0 clashes';
-      runInference();
-    }
-
-    // --- REAL-TIME TOOL MONITORING LOGIC ---
-    async function fetchMonitoringStats() {
-      try {
-        const res = await fetch('/monitoring/stats');
         const data = await res.json();
         
-        document.getElementById('monP95Latency').innerText = data.latency_ms.p95;
-        document.getElementById('monTotalRequests').innerText = data.total_requests;
-        document.getElementById('monSuccessRequests').innerText = data.successful_requests;
-        document.getElementById('monFailedRequests').innerText = data.failed_requests;
-        document.getElementById('monErrorRate').innerText = data.error_rate_percent + '%';
-        document.getElementById('monMemoryPct').innerText = data.system_resources.memory_percent;
-        document.getElementById('monCpuPct').innerText = data.system_resources.cpu_percent + '%';
-        document.getElementById('monUptime').innerText = data.uptime_formatted;
-
-        // Latency Progress Bar
-        const lPct = Math.min(100, Math.round((data.latency_ms.p95 / 25.0) * 100));
-        document.getElementById('latencyProgressBar').style.width = lPct + '%';
-        document.getElementById('memoryProgressBar').style.width = data.system_resources.memory_percent + '%';
-
-        // Predictions counters
-        document.getElementById('cntAttendance').innerText = data.task_predictions.attendance || 0;
-        document.getElementById('cntApproval').innerText = data.task_predictions.approval || 0;
-        document.getElementById('cntBudget').innerText = data.task_predictions.budget || 0;
-        document.getElementById('cntAll').innerText = data.task_predictions.all || 0;
-        document.getElementById('cntBatch').innerText = data.task_predictions.batch || 0;
+        document.getElementById("simResult").classList.remove("hidden");
+        document.getElementById("resAttendance").innerText = `${data.attendance.predicted_registrations} students`;
+        document.getElementById("resProb").innerText = `${(data.approval.probability_accept * 100).toFixed(1)}%`;
+        document.getElementById("resBudget").innerText = `₹${Math.round(data.budget.predicted_budget_inr).toLocaleString()}`;
+        
+        const badge = document.getElementById("resBadge");
+        if (data.approval.recommendation === "APPROVE") {
+          badge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-emerald-100 text-emerald-800 border border-emerald-300";
+          badge.innerText = "APPROVED";
+        } else {
+          badge.className = "px-2 py-0.5 rounded text-[11px] font-bold bg-rose-100 text-rose-800 border border-rose-300";
+          badge.innerText = "CLASH / REJECT";
+        }
       } catch (err) {
-        console.error('Monitoring fetch error:', err);
+        showToast("Error running inference");
       }
     }
 
-    // Auto polling monitoring every 4 seconds when monitoring tab is active
-    setInterval(() => {
-      const monTab = document.getElementById('tabContent-monitoring');
-      if (monTab && !monTab.classList.contains('hidden')) {
-        fetchMonitoringStats();
-      }
-    }, 4000);
+    // ========================================================================
+    // INITIALIZE CHARTS MATCHING SCREENSHOT EXACTLY
+    // ========================================================================
+    window.addEventListener("DOMContentLoaded", () => {
+      
+      // Chart 1: Registrations Timeline Bar Chart (Teal & Charcoal alternating bars)
+      const ctxBar = document.getElementById("registrationsBarChart").getContext("2d");
+      new Chart(ctxBar, {
+        type: "bar",
+        data: {
+          labels: [
+            "", "", "January 28", "", "", "",
+            "February 24", "", "", "", "",
+            "May 19", "", "", "", "",
+            "September 4", "", ""
+          ],
+          datasets: [{
+            data: [
+              4, 5, 12, 10, 11, 8, 12, 9, 11, 10, 12,
+              25, 25, 9, 12, 8, 11, 12, 10
+            ],
+            backgroundColor: [
+              "#2f3542", "#4ecdc4", "#2f3542", "#4ecdc4", "#2f3542", "#4ecdc4",
+              "#2f3542", "#4ecdc4", "#2f3542", "#4ecdc4", "#2f3542",
+              "#4ecdc4", "#2f3542", "#4ecdc4", "#2f3542", "#4ecdc4",
+              "#2f3542", "#4ecdc4", "#2f3542"
+            ],
+            borderRadius: 2,
+            barPercentage: 0.65
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => ` Registrations: ${ctx.parsed.y}`
+              }
+            }
+          },
+          scales: {
+            x: {
+              grid: { display: false },
+              ticks: { font: { size: 9 }, color: "#64748b" }
+            },
+            y: {
+              display: false,
+              grid: { display: false }
+            }
+          }
+        }
+      });
 
-    // Initial run
-    window.addEventListener('DOMContentLoaded', () => {
-      runInference();
+      // Chart 2: Years Of Graduation Donut / Pie Chart (Teal, Dark Slate, Grey, Pink)
+      const ctxDonut1 = document.getElementById("graduationDonutChart").getContext("2d");
+      new Chart(ctxDonut1, {
+        type: "pie",
+        data: {
+          labels: ["Unknown (General)", "2022", "2025", "2027"],
+          datasets: [{
+            data: [65, 15, 10, 10],
+            backgroundColor: ["#4ecdc4", "#ced6e0", "#2f3542", "#ff4757"],
+            borderWidth: 2,
+            borderColor: "#ffffff"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
+      // Chart 3: Account Types Donut / Pie Chart
+      const ctxDonut2 = document.getElementById("accountTypesDonutChart").getContext("2d");
+      new Chart(ctxDonut2, {
+        type: "pie",
+        data: {
+          labels: ["Undergraduate Student", "Parent/family", "Faculty/staff", "Graduate Student"],
+          datasets: [{
+            data: [55, 10, 15, 20],
+            backgroundColor: ["#4ecdc4", "#ced6e0", "#2f3542", "#ff4757"],
+            borderWidth: 2,
+            borderColor: "#ffffff"
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          }
+        }
+      });
+
     });
   </script>
 </body>
