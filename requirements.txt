@@ -16,6 +16,8 @@ apache-airflow>=2.8.3
 
 # Experiment Tracking & Remote Sync
 dagshub>=0.3.0
+tensorboard>=2.15.0
+tensorboardX>=2.6.0
 
 # API & Inference Service
 fastapi>=0.110.0

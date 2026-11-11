@@ -13,6 +13,9 @@ neptune-r/
 # Weights & Biases offline runs
 wandb/
 
+# TensorBoard event runs
+runs/
+
 # Airflow runtime artifacts (keep only the DAG)
 airflow/airflow.db
 airflow/airflow-webserver.pid
