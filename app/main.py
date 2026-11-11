@@ -26,6 +26,7 @@ from fastapi import FastAPI, HTTPException, Request, status
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse, HTMLResponse, FileResponse, PlainTextResponse
 from app.ui import UI_HTML
+from app.jenkins_ui import JENKINS_HTML
 
 from app.config import settings
 from app.registry import registry, ModelStage
@@ -164,6 +165,13 @@ async def root(request: Request):
 async def serve_ui_dashboard():
     """Renders the RVCE 8th Mile Event Intelligence Model UI Dashboard."""
     return HTMLResponse(content=UI_HTML)
+
+
+@app.get("/jenkins", response_class=HTMLResponse, tags=["CI/CD"])
+@app.get("/cicd", response_class=HTMLResponse, tags=["CI/CD"])
+async def serve_jenkins_ui():
+    """Renders the Jenkins CI/CD Pipeline UI for the RVCE MLOps project."""
+    return HTMLResponse(content=JENKINS_HTML)
 
 
 @app.get("/health", response_model=HealthResponse, tags=["Monitoring"])
