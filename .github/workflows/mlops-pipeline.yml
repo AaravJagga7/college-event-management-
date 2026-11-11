@@ -69,6 +69,14 @@ jobs:
         run: |
           pytest tests/test_model_risk_quality.py -v -s
 
+      - name: Execute Pre-Deployment Validation & Behavioral Audits
+        run: |
+          pytest tests/test_pre_deployment_validation.py -v -s
+
+      - name: Execute Production Drift & Latency SLA Monitoring Checks
+        run: |
+          pytest tests/test_monitoring_and_drift.py -v -s
+
   # ============================================================================
   # 3. FASTAPI INFERENCE SERVICE TESTS
   # ============================================================================

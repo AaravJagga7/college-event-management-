@@ -48,6 +48,8 @@ jobs:
         run: |
           pytest tests/test_model_performance.py -v
           pytest tests/test_model_risk_quality.py -v
+          pytest tests/test_pre_deployment_validation.py -v
+          pytest tests/test_monitoring_and_drift.py -v
 
       - name: Run API & UI Integration Tests
         run: |

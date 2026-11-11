@@ -146,12 +146,14 @@ export WANDB_MODE=offline
 
 ---
 
-## 🧪 Test Coverage
+## 🧪 Comprehensive Evaluation & Validation Test Coverage
 
 ```
-tests/test_api.py               16 tests  — health, predict/all, Kubeflow registry, edge cases
-tests/test_model_performance.py  3 tests  — R², MAE, ROC-AUC thresholds
-tests/test_model_risk_quality.py 8 tests  — quality gates, risk constraints
-─────────────────────────────────────────
-                                27 passed
+tests/test_api.py                        16 tests — health, predict/all, Kubeflow registry, edge cases
+tests/test_model_performance.py           3 tests — R², MAE, ROC-AUC production thresholds
+tests/test_model_risk_quality.py          8 tests — quality gates, monotonicity, latency SLAs
+tests/test_pre_deployment_validation.py  10 tests — precision/recall/F1/AUC/MAPE, 5-fold CV, disparate impact, slicing
+tests/test_monitoring_and_drift.py        8 tests — PSI, KS two-sample, Wasserstein/JS drift, QPS throughput
+────────────────────────────────────────────────────────────────────────────────────────────────────────────────
+                                         45 passed in 5.01s (100% pass)
 ```

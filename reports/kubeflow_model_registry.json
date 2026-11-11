@@ -48,7 +48,7 @@
       "author": "rvce-mlops-engineer",
       "stage": "Production",
       "state": "LIVE",
-      "last_updated_at": "2026-11-11T02:57:07.529889Z"
+      "last_updated_at": "2026-11-11T03:01:36.344701Z"
     },
     {
       "id": "mv-approval-v1.0.0",
@@ -57,7 +57,7 @@
       "author": "rvce-mlops-engineer",
       "stage": "Production",
       "state": "LIVE",
-      "last_updated_at": "2026-11-11T02:57:07.529908Z"
+      "last_updated_at": "2026-11-11T03:01:36.344720Z"
     },
     {
       "id": "mv-budget-v1.0.0",
@@ -66,7 +66,7 @@
       "author": "rvce-mlops-engineer",
       "stage": "Production",
       "state": "LIVE",
-      "last_updated_at": "2026-11-11T02:57:07.529922Z"
+      "last_updated_at": "2026-11-11T03:01:36.344735Z"
     }
   ],
   "model_artifacts": [
@@ -134,5 +134,5 @@
       }
     }
   ],
-  "exported_at": "2026-11-11T02:57:07.529935Z"
+  "exported_at": "2026-11-11T03:01:36.344748Z"
 }
