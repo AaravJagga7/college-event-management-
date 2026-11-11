@@ -2,7 +2,7 @@
 set -e
 
 echo "======================================================================"
-echo "🏗️ RVCE 8th Mile - Automated Jenkins Server Launcher"
+echo "⚡ RVCE 8th Mile - Jenkins Master-Slave Architecture & Multibranch Launcher"
 echo "======================================================================"
 
 JENKINS_PORT=${JENKINS_PORT:-8080}
@@ -10,28 +10,41 @@ PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Check if Docker is available
 if ! command -v docker &> /dev/null; then
-    echo "❌ Docker is not installed or not in PATH."
-    echo "👉 Please install Docker Desktop for Mac (https://www.docker.com/products/docker-desktop/)"
-    echo "   Or run Jenkins directly with Java: java -jar jenkins.war --httpPort=${JENKINS_PORT}"
+    echo "❌ Docker is not installed or not running."
+    echo "👉 Please install Docker Desktop (https://www.docker.com/products/docker-desktop/)"
     exit 1
 fi
 
-echo "📦 Starting Jenkins Server container on port ${JENKINS_PORT}..."
-cd "${PROJECT_DIR}/jenkins"
-
-if command -v docker-compose &> /dev/null; then
-    docker-compose up -d --build
-else
-    docker compose up -d --build
+# Ensure SSH keypair exists for Master -> Slave Agent connection
+mkdir -p "${PROJECT_DIR}/jenkins/keys"
+if [ ! -f "${PROJECT_DIR}/jenkins/keys/agent_rsa" ]; then
+    echo "🔑 Generating master-slave SSH keypair..."
+    ssh-keygen -t rsa -b 2048 -f "${PROJECT_DIR}/jenkins/keys/agent_rsa" -N "" -q
+    chmod 600 "${PROJECT_DIR}/jenkins/keys/agent_rsa"
+    chmod 644 "${PROJECT_DIR}/jenkins/keys/agent_rsa.pub"
 fi
 
+echo "📦 Launching Master (Controller) and Slave (Agent) via Docker Compose..."
+cd "${PROJECT_DIR}/jenkins"
+
+if docker compose version &> /dev/null; then
+    COMPOSE_CMD="docker compose"
+elif command -v docker-compose &> /dev/null; then
+    COMPOSE_CMD="docker-compose"
+else
+    echo "❌ Neither 'docker compose' nor 'docker-compose' found."
+    exit 1
+fi
+
+$COMPOSE_CMD up -d --build
+
 echo ""
-echo "⏳ Waiting for Jenkins to initialize and generate admin key..."
+echo "⏳ Waiting for Jenkins Master Controller to complete startup..."
 sleep 10
 
 # Attempt to fetch admin password
 for i in {1..30}; do
-    PASSWORD=$(docker exec rvce_jenkins_server cat /var/jenkins_home/secrets/initialAdminPassword 2>/dev/null || true)
+    PASSWORD=$(docker exec rvce_jenkins_controller cat /var/jenkins_home/secrets/initialAdminPassword 2>/dev/null || true)
     if [ -n "$PASSWORD" ]; then
         break
     fi
@@ -39,26 +52,19 @@ for i in {1..30}; do
 done
 
 echo "======================================================================"
-echo "🎉 Jenkins Server is Running Successfully!"
+echo "🎉 Jenkins Master-Slave Cluster is Live!"
 echo "======================================================================"
-echo "🔗 Access URL:            http://localhost:${JENKINS_PORT}"
+echo "👑 Master (Controller):    http://localhost:${JENKINS_PORT}"
+echo "💻 Slave Worker Node:      rvce_jenkins_agent (SSH Port 22)"
+echo "🌿 Multibranch Job:        rvce-event-intelligence-multibranch"
+echo "   Auto-scans:             https://github.com/AaravJagga7/college-event-management-.git"
 if [ -n "$PASSWORD" ]; then
-    echo "🔑 Initial Admin Password: ${PASSWORD}"
+    echo "🔑 Admin Password:         ${PASSWORD}"
 else
-    echo "🔑 Fetch Admin Password:   docker exec rvce_jenkins_server cat /var/jenkins_home/secrets/initialAdminPassword"
+    echo "🔑 Admin Password:         docker exec rvce_jenkins_controller cat /var/jenkins_home/secrets/initialAdminPassword"
 fi
 echo "======================================================================"
-echo "🚀 Next Steps to Run Your Pipeline:"
-echo " 1. Open http://localhost:${JENKINS_PORT} in your browser."
-echo " 2. Paste the Initial Admin Password."
-echo " 3. Click 'Install Suggested Plugins'."
-echo " 4. Create New Item -> Select 'Pipeline' -> Name: 'rvce-event-mlops'."
-echo " 5. Under Pipeline definition, select 'Pipeline script from SCM' -> Git."
-echo " 6. Set Script Path to 'Jenkinsfile' and click 'Save' -> 'Build Now'!"
+echo "📋 Architecture Overview:"
+echo "   - Master: 0 executors (pure orchestrator & web UI)"
+echo "   - Slave:  2 executors (runs all Python, Pytest, Docker & Vercel builds)"
 echo "======================================================================"
-
-# Open in macOS browser if supported
-if [[ "$OSTYPE" == "darwin"* ]]; then
-    open "http://localhost:${JENKINS_PORT}" 2>/dev/null || true
-fi
-

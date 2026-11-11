@@ -1,0 +1,12 @@
+configuration-as-code:1775.v810dc950b_514
+job-dsl:1.89
+workflow-aggregator:596.v8c21c963d92d
+git:5.2.2
+github:1.39.0
+ssh-slaves:2.946.t897f563603e0
+credentials-binding:681.vf91662a_3253e
+pipeline-stage-view:2.34
+docker-workflow:580.v4c3308a_a_3287
+ws-cleanup:0.46
+ansicolor:1.0.4
+junit:1265.ge6f512cd3101
