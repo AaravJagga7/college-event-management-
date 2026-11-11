@@ -1,0 +1,17 @@
+# Core Machine Learning & Data Processing
+numpy>=1.24.0,<3.0.0
+pandas>=2.0.0,<3.0.0
+scikit-learn>=1.4.0,<1.7.0
+scipy>=1.10.0,<2.0.0
+joblib>=1.3.0
+pyyaml>=6.0
+
+# API & Inference Service
+fastapi>=0.110.0
+uvicorn[standard]>=0.28.0
+pydantic>=2.5.0
+pydantic-settings>=2.0.0
+
+# Monitoring & Production
+python-dateutil>=2.8.2
+requests>=2.31.0

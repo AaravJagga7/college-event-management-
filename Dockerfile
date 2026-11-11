@@ -3,7 +3,7 @@
 # ==============================================================================
 
 # Stage 1: Build & Dependency Resolution
-FROM python:3.9-slim AS builder
+FROM python:3.12-slim AS builder
 
 WORKDIR /build
 
@@ -11,14 +11,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     && rm -rf /var/lib/apt/lists/*
 
-COPY requirements.txt .
+COPY requirements-api.txt ./requirements.txt
 
 RUN pip install --no-cache-dir --upgrade pip && \
     pip install --no-cache-dir --prefix=/install -r requirements.txt
 
 
 # Stage 2: Minimal Production Runtime
-FROM python:3.9-slim AS runner
+FROM python:3.12-slim AS runner
 
 # Production Environment Variables
 ENV PYTHONUNBUFFERED=1 \
