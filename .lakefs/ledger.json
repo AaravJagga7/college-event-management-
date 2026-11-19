@@ -3,7 +3,7 @@
   "current_branch": "main",
   "branches": {
     "main": {
-      "head_commit": "c_74c9896903"
+      "head_commit": "c_f772975855"
     }
   },
   "commits": [
@@ -169,6 +169,136 @@
           "local_path": "features_ready.csv",
           "size_bytes": 94712,
           "checksum": "1d8a4c0386d5f3027201aa1b3dc5eeed80f45e85f6ef5116de1f6a9b44670c9f",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_f49ea3201f",
+      "branch": "main",
+      "message": "dagster: automated pipeline run at 2026-11-19 04:07:21 UTC",
+      "timestamp": "2026-11-19T04:07:21.187150Z",
+      "metadata": {
+        "raw_checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+        "features_checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 276735,
+          "checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 118319,
+          "checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_f5c01816a4",
+      "branch": "main",
+      "message": "dagster: automated pipeline run at 2026-11-19 04:08:21 UTC",
+      "timestamp": "2026-11-19T04:08:21.833877Z",
+      "metadata": {
+        "raw_checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+        "features_checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 276735,
+          "checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 118319,
+          "checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_0f1a78b799",
+      "branch": "main",
+      "message": "dagster: automated pipeline run at 2026-11-19 04:08:43 UTC",
+      "timestamp": "2026-11-19T04:08:43.937597Z",
+      "metadata": {
+        "raw_checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+        "features_checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 276735,
+          "checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 118319,
+          "checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_07f66d9d4d",
+      "branch": "main",
+      "message": "dagster: automated pipeline run at 2026-11-19 04:08:52 UTC",
+      "timestamp": "2026-11-19T04:08:52.037807Z",
+      "metadata": {
+        "raw_checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+        "features_checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 276735,
+          "checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 118319,
+          "checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+          "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
+        }
+      }
+    },
+    {
+      "id": "c_f772975855",
+      "branch": "main",
+      "message": "dagster: automated pipeline run at 2026-11-19 04:09:42 UTC",
+      "timestamp": "2026-11-19T04:09:42.790524Z",
+      "metadata": {
+        "raw_checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+        "features_checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
+        "storage_namespace": "local://college-event-data",
+        "author": "pipeline-executor"
+      },
+      "objects": {
+        "raw/rvce_8th_mile_data.csv": {
+          "local_path": "rvce_8th_mile_data.csv",
+          "size_bytes": 276735,
+          "checksum": "facad70af640121779c89db20854b05cd0b2127349fd32c42a49e2927c0814c7",
+          "lakefs_uri": "lakefs://college-event-data/main/raw/rvce_8th_mile_data.csv"
+        },
+        "processed/features_ready.csv": {
+          "local_path": "features_ready.csv",
+          "size_bytes": 118319,
+          "checksum": "2464d06a62540e9bae9e188f5dbb1f50e45a743d6f6ef672843f78a7e505193d",
           "lakefs_uri": "lakefs://college-event-data/main/processed/features_ready.csv"
         }
       }

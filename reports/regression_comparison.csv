@@ -1,5 +1,5 @@
 Model,Test R²,Test MAE,Test RMSE,CV R² (Mean),Artifact
-Decision Tree,0.846,81.28,157.78,0.838,reports/models/reg_decision_tree.joblib
-Random Forest,0.8558,82.48,152.64,0.8625,reports/models/reg_random_forest.joblib
-Gradient Boosting,0.8357,87.62,162.94,0.8457,reports/models/reg_gradient_boosting.joblib
-Voting Regressor,0.8523,83.06,154.49,0.8581,reports/models/reg_voting_regressor.joblib
+Decision Tree,0.846,81.28,157.78,0.838,reports/models/candidate_reg_decision_tree.joblib
+Random Forest,0.8558,82.48,152.64,0.8625,reports/models/candidate_reg_random_forest.joblib
+Gradient Boosting,0.8357,87.62,162.94,0.8457,reports/models/candidate_reg_gradient_boosting.joblib
+Voting Regressor,0.8523,83.06,154.49,0.8581,reports/models/candidate_reg_voting_regressor.joblib

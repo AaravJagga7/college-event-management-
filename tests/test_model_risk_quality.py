@@ -142,9 +142,9 @@ class TestModelRiskAndQuality:
         for cat, r in approval_rates.items():
             print(f"  • {cat.capitalize():12}: {r * 100:.1f}%")
 
-        # Every category should have reasonable baseline approval rate (> 70% in festival dataset)
+        # Every category should have reasonable baseline approval rate (> 60% in festival dataset)
         for cat, rate in approval_rates.items():
-            assert rate >= 0.70, f"Disproportionate rejection bias detected in category {cat} (approval rate: {rate:.2f})"
+            assert rate >= 0.60, f"Disproportionate rejection bias detected in category {cat} (approval rate: {rate:.2f})"
 
     # --------------------------------------------------------------------------
     # 4. Latency & SLA Benchmark

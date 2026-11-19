@@ -16,6 +16,15 @@ wandb/
 # TensorBoard event runs
 runs/
 
+# Dagster runtime artifacts
+.tmp_dagster_home_*
+
+# Consolidated images directory (local copy)
+all_images/
+
+# Candidate model weights
+reports/models/candidate_*.joblib
+
 # Airflow runtime artifacts (keep only the DAG)
 airflow/airflow.db
 airflow/airflow-webserver.pid

@@ -1,5 +1,5 @@
 Model,Accuracy,F1-Score,ROC-AUC,Artifact
-Decision Tree,0.84,0.9059,0.8482,reports/models/cls_decision_tree.joblib
-Random Forest,0.8533,0.9056,0.8761,reports/models/cls_random_forest.joblib
-Gradient Boosting,0.8567,0.9138,0.879,reports/models/cls_gradient_boosting.joblib
-Voting Classifier,0.8533,0.9116,0.8767,reports/models/cls_voting_classifier.joblib
+Decision Tree,0.84,0.9059,0.8482,reports/models/candidate_cls_decision_tree.joblib
+Random Forest,0.8533,0.9056,0.8761,reports/models/candidate_cls_random_forest.joblib
+Gradient Boosting,0.8567,0.9138,0.879,reports/models/candidate_cls_gradient_boosting.joblib
+Voting Classifier,0.8533,0.9116,0.8767,reports/models/candidate_cls_voting_classifier.joblib

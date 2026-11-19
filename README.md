@@ -15,6 +15,7 @@ An enterprise-grade, end-to-end reproducible MLOps platform engineered for autom
 ## 📌 Production Links & Live Endpoints
 
 - **Production API URL**: [https://rvce-event-intelligence.vercel.app](https://rvce-event-intelligence.vercel.app)
+- **Dagster UI & Asset Catalog**: [http://127.0.0.1:3000](http://127.0.0.1:3000) *(Software-Defined Assets & lakeFS Lineage Graph)*
 - **Interactive Executive UI**: [http://127.0.0.1:8000/ui](http://127.0.0.1:8000/ui) *(Live AI Simulator & Event Analytics)*
 - **Jenkins CI/CD Dashboard**: [http://127.0.0.1:8000/jenkins](http://127.0.0.1:8000/jenkins) *(Interactive Build Stages & Console Output)*
 - **TensorBoard Dashboard**: [http://localhost:6006](http://localhost:6006) *(Multi-Model Curves, HParams & Histograms)*
@@ -192,6 +193,12 @@ uvicorn app.main:app --host 127.0.0.1 --port 8000 --reload
 ### 3. Launch Observability & Tracking Services
 
 ```bash
+# Start Dagster Webserver & Model Orchestrator (port 3000)
+./start_dagster.sh 3000
+
+# Execute full Dagster asset materialization with lakeFS in-process
+python run_dagster_pipeline.py
+
 # Start TensorBoard Experiment Tracking (port 6006)
 python start_tensorboard.py 6006 runs/college_event_tracking
 

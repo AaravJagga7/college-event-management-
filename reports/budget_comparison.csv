@@ -1,4 +1,4 @@
 Model,Test R²,Test MAE,Test RMSE,Test MAPE (%),CV R² (Mean),Artifact
-Gradient Boosting,0.9991,3686.96,4736.62,3.63,0.9991,reports/models/bgt_gradient_boosting.joblib
-Random Forest,0.9978,5572.11,7280.65,5.43,0.9978,reports/models/bgt_random_forest.joblib
-Decision Tree,0.996,7537.02,9882.2,7.77,0.9955,reports/models/bgt_decision_tree.joblib
+Gradient Boosting,0.9991,3686.96,4736.62,3.63,0.9991,reports/models/candidate_bgt_gradient_boosting.joblib
+Random Forest,0.9978,5572.11,7280.65,5.43,0.9978,reports/models/candidate_bgt_random_forest.joblib
+Decision Tree,0.996,7537.02,9882.2,7.77,0.9955,reports/models/candidate_bgt_decision_tree.joblib

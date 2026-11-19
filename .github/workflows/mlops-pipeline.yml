@@ -77,6 +77,10 @@ jobs:
         run: |
           pytest tests/test_monitoring_and_drift.py -v -s
 
+      - name: Execute Dagster Model Orchestration & lakeFS Integration Checks
+        run: |
+          pytest tests/test_dagster_orchestration.py -v -s
+
   # ============================================================================
   # 3. FASTAPI INFERENCE SERVICE TESTS
   # ============================================================================
